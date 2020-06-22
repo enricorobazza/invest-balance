@@ -1,0 +1,46 @@
+{% extends '../main.html' %}
+{% load static %}
+{% if assets %}
+{% block content %}
+
+{% csrf_token %} 
+
+<div class="row m-3">
+  <div class="col-md-12 text-dark h2 px-0">
+    Ativos cadastrados
+  </div>
+  <table class="table my-2 table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Bolsa</th>
+        <th scope="col">Categoria</th>
+        <th scope="col">Nome</th>
+        <th scope="col">Código</th>
+        <th scope="col">Nota</th>
+        <th scope="col">Preço</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+
+      <tr>
+        <td class="align-middle">{{asset.pk}}</td>
+        <td class="align-middle">{{asset.stock_exchange}}</td>
+        <td class="align-middle">{{asset.category}}</td>
+        <td class="align-middle">{{asset.name}}</td>
+        <td class="align-middle">{{asset.code}}</td>
+        <td class="align-middle">{{asset.score}}</td>
+        <td class="align-middle">...</td>
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+
+<script src="{% static '/js/list_assets.js' %}"></script>
+
+{% endblock %}
+{% endif %}

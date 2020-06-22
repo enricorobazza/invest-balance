@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block site %}
+
+<div class="d-flex flex-column" style="min-height: 100vh;">
+  {% include 'Components/header.html' %}
+
+  <div class="flex-grow-1">
+    {% block content %} {% endblock %}
+  </div>
+
+  {% include 'Components/footer.html' %}
+</div>
+
+{% endblock %}

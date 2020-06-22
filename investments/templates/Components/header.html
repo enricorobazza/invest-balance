@@ -1,0 +1,39 @@
+{% load static %} {% block content %}
+
+<style>
+  .btnLogout:hover {
+    color: coral !important;
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand text-info" href="#">Invest Balance</a>
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#navbarNav"
+    aria-controls="navbarNav"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li id="home" class="nav-item active">
+      </li>
+      <li id="person" class="nav-item">
+      </li>
+      <li id="package" class="nav-item">
+      </li>
+      <li id="package" class="nav-item">
+      </li>
+    </ul>
+  </div>
+  <div class="mr-2 text-light">
+    <i class="text-info fa fa-user mr-1 fa-lg"></i>
+  </div>
+</nav>
+
+{% endblock %}

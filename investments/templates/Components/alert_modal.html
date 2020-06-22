@@ -1,0 +1,41 @@
+{% block content %} {% load static %}
+
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static '/Components/AlertModal/alert_modal.css' %}"
+/>
+
+<script src="{% static '/Components/AlertModal/alert_modal.js' %}"></script>
+
+
+<div id="alertModal" class="modal fade">
+  <div class="modal-dialog modal-confirm">
+    <div class="modal-content">
+      <div class="modal-header bg-danger">
+        <div class="icon-box">
+          <!-- <i class="material-icons">done</i> -->
+          <!-- <i class="material-icons">clear</i> -->
+          <i class="material-icons">priority_high</i>
+        </div>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-hidden="true"
+        >
+          &times;
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <h4 class="modal-title">TITLE</h4>
+        <p class="modal-message">MESSAGE</p>
+        <button class="btn btn-danger" data-dismiss="modal">
+          <span>Fechar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
