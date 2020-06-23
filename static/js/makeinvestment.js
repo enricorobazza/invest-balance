@@ -115,7 +115,8 @@ const getPrices = () => {
 
 getPrices();
 
-$("#simulate_investment").on('submit', () => {
+$("#simulate_investment").on('submit', (e) => {
+  e.preventDefault();
   simulated_investment = parseFloat($("#simulated_investment").val())
   new_patrimony = global_patrimony + simulated_investment;
   updatePercentages(new_patrimony);
