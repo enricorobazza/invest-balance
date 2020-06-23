@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import Asset, AssetPurchase, Category
 from django.db.models import F, FloatField, Sum, Avg
@@ -12,6 +12,10 @@ def home(request):
 # transfer valor inicial / valor final
 
 def list_assets(request):
+
+  if(request.user.is_anonymous):
+    return redirect('/admin')
+
   assets = Asset.objects.filter(user=request.user)
   for asset in assets:
     asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(cost_sum=Sum(F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value'), output_field=FloatField()), count=Sum(F('amount'), output_field=FloatField()))
@@ -40,6 +44,9 @@ def get_stock_price(request, code):
   return JsonResponse({"price": "%.2f"%price})
 
 def make_investment(request):
+  if(request.user.is_anonymous):
+    return redirect('/admin')
+    
   assets = Asset.objects.filter(user=request.user)
   categories = Category.objects.filter(user=request.user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
 
@@ -61,6 +68,6 @@ def make_investment(request):
   for asset in assets:
     category_weight = asset.category.weight / categories["weight_sum"]
     ideal_percentage = asset.score / score_sum_by_category[asset.category.pk] * category_weight * 100
-    asset.ideal_percentage = "%.2f" % ideal_percentage
+    asset.ideal_percentage = "%.2f" % ideal_percentage  
 
   return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets})
