@@ -21,9 +21,11 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
-      <li id="home" class="nav-item active">
+      <li id="summary" class="nav-item active">
+        <a class="nav-link" href="{% url 'list_assets' %}">Resumo de ativos</a>
       </li>
-      <li id="person" class="nav-item">
+      <li id="invest" class="nav-item">
+        <a class="nav-link" href="{% url 'invest' %}">Investir</a>
       </li>
       <li id="package" class="nav-item">
       </li>
@@ -35,5 +37,8 @@
     <i class="text-info fa fa-user mr-1 fa-lg"></i>
   </div>
 </nav>
+
+
+<script src="{% static '/js/header.js' %}"></script>
 
 {% endblock %}
