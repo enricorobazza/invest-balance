@@ -51,15 +51,33 @@ class Asset(models.Model):
   score = models.FloatField()
 
   def __str__(self):
-    return self.name
+    return self.short_code
 
 class AssetPurchase(models.Model):
   asset = models.ForeignKey(Asset, related_name="purchased_asset", on_delete=models.PROTECT)
   date = models.DateField(default=timezone.now)
   value = models.FloatField()
-  amount = models.IntegerField()
+  amount = models.FloatField()
   transfer = models.ForeignKey(Transfer, related_name="asset_purchase_transfer", on_delete=models.PROTECT)
+  taxes_value = models.FloatField(default=0)
 
   def __str__(self):
-    return self.asset
+    return "%s (%s)"%(str(self.asset), self.date)
+
+class Bank(models.Model):
+  title = models.CharField(max_length=255)
+
+  def __str__(self):
+    return self.title
+
+class Saving(models.Model):
+  bank = models.ForeignKey(Bank, related_name="saving_bank", on_delete=models.PROTECT)
+  amount = models.FloatField()
+  final_amount = models.FloatField()
+  date = models.DateField(default=timezone.now)
+  updated = models.DateTimeField(auto_now=True)
+  category = models.ForeignKey(Category, related_name="saving_category", on_delete=models.PROTECT)
+
+  def __str__(self):
+    return "%s (%s) at %s" %(self.amount, str(self.bank), self.date)
 
