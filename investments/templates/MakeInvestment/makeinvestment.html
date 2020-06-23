@@ -6,65 +6,69 @@
 {% csrf_token %} 
 
 <div class="row m-3">
-  <div class="col-md-12 text-dark h2 px-0">
-    Balanceamento de Ativos
-    <form action="#" id="simulate_investment">
-      <button type="submit" class="btn btn-primary float-right ml-2">Simular Investimento</button>
-      <input id="simulated_investment" type="number" class="form-control d-inline float-right" style="width: 200px;" placeholder="Valor"/>
+  <div class="col-12 text-dark h2 px-0">
+    <div class="col-12 m-0">
+      Balanceamento de Ativos
+    </div>
+    <form action="#" id="simulate_investment" class="col-12 col-sm-9 col-md-6 col-lg-4 m-0 p-0 mt-3 text-right float-right">
+      <input style="vertical-align: middle;" id="simulated_investment" type="number" class="form-control d-inline col-5 m-0" placeholder="Valor"/>
+      <button type="submit" class="btn btn-primary col-6 offset-1 m-0">Simular Investimento</button>
     </form>
   </div>
-  <table id="assets" class="table my-2 table-striped">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">Código</th>
-        <th scope="col">Categoria</th>
-        <th scope="col">Nota</th>
-        <th scope="col">Preço Atual (R$)</th>
-        <th scope="col">Tenho</th>
-        <th scope="col">Tenho (R$)</th>
-        <th scope="col">% Tenho</th>
-        <th scope="col">% Ideal</th>
-        <th scope="col">A investir</th>
-        <th scope="col">Falta</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for asset in assets %}
-      <tr key="asset">
-        <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
-        <td key="short_code" class="align-middle">{{asset.short_code}}</td>
-        <td key="category" class="align-middle">{{asset.category}}</td>
-        <td key="score" class="align-middle">{{asset.score}}</td>
-        <td key="price" class="align-middle">...</td>
-        <td key="count" class="align-middle">{{asset.count}}</td>
-        <td key="have" class="align-middle">...</td>
-        <td key="have_percentage" class="align-middle">...</td>
-        <td key="ideal_percentage" class="align-middle">{{asset.ideal_percentage}}</td>
-        <td key="to_invest" class="align-middle">...</td>
-        <td key="to_invest_count" class="align-middle">...</td>
-      </tr>
+  <div class="table-responsive">
+    <table id="assets" class="table my-2 table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Categoria</th>
+          <th scope="col">Nota</th>
+          <th scope="col">Preço Atual (R$)</th>
+          <th scope="col">Tenho</th>
+          <th scope="col">Tenho (R$)</th>
+          <th scope="col">% Tenho</th>
+          <th scope="col">% Ideal</th>
+          <th scope="col">A investir</th>
+          <th scope="col">Falta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in assets %}
+        <tr key="asset">
+          <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
+          <td key="short_code" class="align-middle">{{asset.short_code}}</td>
+          <td key="category" class="align-middle">{{asset.category}}</td>
+          <td key="score" class="align-middle">{{asset.score}}</td>
+          <td key="price" class="align-middle">...</td>
+          <td key="count" class="align-middle">{{asset.count}}</td>
+          <td key="have" class="align-middle">...</td>
+          <td key="have_percentage" class="align-middle">...</td>
+          <td key="ideal_percentage" class="align-middle">{{asset.ideal_percentage}}</td>
+          <td key="to_invest" class="align-middle">...</td>
+          <td key="to_invest_count" class="align-middle">...</td>
+        </tr>
 
-      {% endfor %}
+        {% endfor %}
 
-      {% if saving_asset %}
+        {% if saving_asset %}
 
-      <tr key="saving" style="font-weight: bold;">
-        <td key="code" class="align-middle">{{saving_asset.code}}</td>
-        <td key="category" class="align-middle">{{saving_asset.category}}</td>
-        <td key="score" class="align-middle"> - </td>
-        <td key="price" class="align-middle"> - </td>
-        <td key="count" class="align-middle"> - </td>
-        <td key="have" class="align-middle">{{saving_asset.have}}</td>
-        <td key="have_percentage" class="align-middle">...</td>
-        <td key="ideal_percentage" class="align-middle">{{saving_asset.ideal_percentage}}</td>
-        <td key="to_invest" class="align-middle">...</td>
-        <td key="to_invest_count" class="align-middle">...</td>
-      </tr>
+        <tr key="saving" style="font-weight: bold;">
+          <td key="code" class="align-middle">{{saving_asset.code}}</td>
+          <td key="category" class="align-middle">{{saving_asset.category}}</td>
+          <td key="score" class="align-middle"> - </td>
+          <td key="price" class="align-middle"> - </td>
+          <td key="count" class="align-middle"> - </td>
+          <td key="have" class="align-middle">{{saving_asset.have}}</td>
+          <td key="have_percentage" class="align-middle">...</td>
+          <td key="ideal_percentage" class="align-middle">{{saving_asset.ideal_percentage}}</td>
+          <td key="to_invest" class="align-middle">...</td>
+          <td key="to_invest_count" class="align-middle">...</td>
+        </tr>
 
-      {% endif %}
+        {% endif %}
 
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script src="{% static '/js/makeinvestment.js' %}"></script>

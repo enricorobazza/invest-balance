@@ -9,37 +9,39 @@
   <div class="col-md-12 text-dark h2 px-0">
     Resumo dos Ativos
   </div>
-  <table id="assets" class="table my-2 table-striped">
-    <thead class="thead-dark">
-      <tr>
-        <!-- <th scope="col">ID</th> -->
-        <!-- <th scope="col">Bolsa</th> -->
-        <th scope="col">Código</th>
-        <th scope="col">Categoria</th>
-        <th scope="col">Tenho</th>
-        <!-- <th scope="col">Nome</th> -->
-        <!-- <th scope="col">Nota</th> -->
-        <th scope="col">Preço Médio (R$)</th>
-        <th scope="col">Preço Atual (R$)</th>
-        <th scope="col">Rendimento (%)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for asset in assets %}
-      <tr>
-        <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
-        <td key="short_code" class="align-middle">{{asset.short_code}}</td>
-        <td key="category" class="align-middle">{{asset.category}}</td>
-        <td key="count" class="align-middle">{{asset.count}}</td>
-        <td key="cost_avg" class="align-middle">{{asset.cost_avg|default_if_none:"0"}}</td>
-        <td key="price" class="align-middle">...</td>
-        <td key="yield" class="align-middle">...</td>
-      </tr>
+  <div class="table-responsive">
+    <table id="assets" class="table my-2 table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <!-- <th scope="col">ID</th> -->
+          <!-- <th scope="col">Bolsa</th> -->
+          <th scope="col">Código</th>
+          <th scope="col">Categoria</th>
+          <th scope="col">Tenho</th>
+          <!-- <th scope="col">Nome</th> -->
+          <!-- <th scope="col">Nota</th> -->
+          <th scope="col">Preço Médio (R$)</th>
+          <th scope="col">Preço Atual (R$)</th>
+          <th scope="col">Rendimento (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in assets %}
+        <tr>
+          <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
+          <td key="short_code" class="align-middle">{{asset.short_code}}</td>
+          <td key="category" class="align-middle">{{asset.category}}</td>
+          <td key="count" class="align-middle">{{asset.count}}</td>
+          <td key="cost_avg" class="align-middle">{{asset.cost_avg|default_if_none:"0"}}</td>
+          <td key="price" class="align-middle">...</td>
+          <td key="yield" class="align-middle">...</td>
+        </tr>
 
-      {% endfor %}
+        {% endfor %}
 
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script src="{% static '/js/list_assets.js' %}"></script>
