@@ -8,6 +8,10 @@
 <div class="row m-3">
   <div class="col-md-12 text-dark h2 px-0">
     Balanceamento de Ativos
+    <form action="#" id="simulate_investment">
+      <button type="submit" class="btn btn-primary float-right ml-2">Simular Investimento</button>
+      <input id="simulated_investment" type="number" class="form-control d-inline float-right" style="width: 200px;" placeholder="Valor"/>
+    </form>
   </div>
   <table id="assets" class="table my-2 table-striped">
     <thead class="thead-dark">
@@ -26,7 +30,7 @@
     </thead>
     <tbody>
       {% for asset in assets %}
-      <tr>
+      <tr key="asset">
         <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
         <td key="short_code" class="align-middle">{{asset.short_code}}</td>
         <td key="category" class="align-middle">{{asset.category}}</td>
@@ -37,10 +41,27 @@
         <td key="have_percentage" class="align-middle">...</td>
         <td key="ideal_percentage" class="align-middle">{{asset.ideal_percentage}}</td>
         <td key="to_invest" class="align-middle">...</td>
-        <td key="missing" class="align-middle">...</td>
+        <td key="to_invest_count" class="align-middle">...</td>
       </tr>
 
       {% endfor %}
+
+      {% if saving_asset %}
+
+      <tr key="saving" style="font-weight: bold;">
+        <td key="code" class="align-middle">{{saving_asset.code}}</td>
+        <td key="category" class="align-middle">{{saving_asset.category}}</td>
+        <td key="score" class="align-middle"> - </td>
+        <td key="price" class="align-middle"> - </td>
+        <td key="count" class="align-middle"> - </td>
+        <td key="have" class="align-middle">{{saving_asset.have}}</td>
+        <td key="have_percentage" class="align-middle">...</td>
+        <td key="ideal_percentage" class="align-middle">{{saving_asset.ideal_percentage}}</td>
+        <td key="to_invest" class="align-middle">...</td>
+        <td key="to_invest_count" class="align-middle">...</td>
+      </tr>
+
+      {% endif %}
 
     </tbody>
   </table>

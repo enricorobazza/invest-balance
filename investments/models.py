@@ -77,6 +77,7 @@ class Saving(models.Model):
   date = models.DateField(default=timezone.now)
   updated = models.DateTimeField(auto_now=True)
   category = models.ForeignKey(Category, related_name="saving_category", on_delete=models.PROTECT)
+  user = models.ForeignKey(User, related_name="saving_user", on_delete=models.CASCADE)
 
   def __str__(self):
     return "%s (%s) at %s" %(self.amount, str(self.bank), self.date)

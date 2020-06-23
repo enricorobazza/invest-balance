@@ -1,10 +1,17 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Asset, AssetPurchase, Category
+from .models import Asset, AssetPurchase, Category, Saving
 from django.db.models import F, FloatField, Sum, Avg
 import json
 import urllib.request
 from forex_python.converter import CurrencyRates
+
+class SavingAsAsset():
+  def __init__(self, code, category, have, ideal_percentage):
+    self.code = code
+    self.category = category
+    self.have = have
+    self.ideal_percentage = ideal_percentage * 100
 
 def home(request):
   return HttpResponse('<h1>Home Page</h1>')
@@ -46,9 +53,11 @@ def get_stock_price(request, code):
 def make_investment(request):
   if(request.user.is_anonymous):
     return redirect('/admin')
-    
+
   assets = Asset.objects.filter(user=request.user)
   categories = Category.objects.filter(user=request.user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
+  savings_sum = Saving.objects.filter(user=request.user).aggregate(sum=Sum('final_amount', output_field=FloatField()))
+  savings = Saving.objects.filter(user=request.user)
 
   score_sum_by_category = {}
 
@@ -70,4 +79,10 @@ def make_investment(request):
     ideal_percentage = asset.score / score_sum_by_category[asset.category.pk] * category_weight * 100
     asset.ideal_percentage = "%.2f" % ideal_percentage  
 
-  return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets})
+  saving_asset = None
+
+  if(len(savings) > 0):
+    category_weight = savings[0].category.weight / categories["weight_sum"]
+    saving_asset = SavingAsAsset("CAIXA", savings[0].category, savings_sum["sum"], category_weight)
+
+  return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets, 'saving_asset': saving_asset})
