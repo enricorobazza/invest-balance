@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'pwa',
     'investments.apps.InvestmentsConfig'
 ]
 
@@ -118,6 +119,26 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# PWA CONFIG
+
+PWA_APP_NAME = 'Invest Balance' 
+PWA_APP_DESCRIPTION = "Balance your investments" 
+PWA_APP_THEME_COLOR = '#328ba8' 
+PWA_APP_BACKGROUND_COLOR = '#ffffff' 
+PWA_APP_DISPLAY = 'standalone' 
+PWA_APP_SCOPE = '/' 
+PWA_APP_ORIENTATION = 'any' 
+PWA_APP_START_URL = '/' 
+PWA_APP_STATUS_BAR_COLOR = 'default' 
+PWA_APP_ICONS = [ { 'src': '/static/images/invest_balance_icon.png', 'sizes': '160x160' } ] 
+PWA_APP_ICONS_APPLE = [ { 'src': '/static/images/invest_balance_icon.png', 'sizes': '160x160' } ] 
+PWA_APP_SPLASH_SCREEN = [ { 'src': '/static/images/splash-640x1136.png' } ] 
+PWA_APP_DIR = 'ltr' 
+PWA_APP_LANG = 'pt-BR'
+PWA_APP_DEBUG_MODE = False
+
+######
 
 
 # Static files (CSS, JavaScript, Images)
