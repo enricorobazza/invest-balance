@@ -1,8 +1,8 @@
 const path = window.location.pathname;
 
-const summary = document.getElementById('summary');
-const assets = document.getElementById('invest');
-const invest = document.getElementById('invest');
+const summary = document.getElementById('summary_header');
+const assets = document.getElementById('assets_header');
+const invest = document.getElementById('invest_header');
 
 
 const clear = () => {
