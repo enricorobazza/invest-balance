@@ -6,9 +6,6 @@
 {% csrf_token %} 
 
 <div class="row m-3">
-  <div class="col-md-12 text-dark h2 px-0">
-    Resumo dos Ativos
-  </div>
   <div class="table-responsive">
     <table id="assets" class="table my-2 table-striped">
       <thead class="thead-dark">
@@ -34,7 +31,7 @@
           <td key="count" class="align-middle">{{asset.count}}</td>
           <td key="cost_avg" class="align-middle">{{asset.cost_avg|default_if_none:"0"}}</td>
           <td key="price" class="align-middle">...</td>
-          <td key="yield" class="align-middle">...</td>
+          <td key="yield" class="align-middle">0</td>
         </tr>
 
         {% endfor %}
