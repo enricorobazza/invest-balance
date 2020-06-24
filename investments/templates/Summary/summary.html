@@ -1,0 +1,66 @@
+{% extends '../main.html' %}
+{% load static %}
+{% if categories %}
+{% block content %}
+
+{% csrf_token %} 
+
+<script type='text/javascript'>
+  const categories = JSON.parse("{{categories|safe}}".replace(/'/g, '"'));
+  const savings_current_value = parseFloat("{{savings.current_value|safe}}")
+</script>
+
+<div class="row m-3">
+  <div class="col-12 text-dark h2 px-0">
+    <div class="col-12 m-0">
+      Resumo Total
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table id="categories" class="table my-2 table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Categoria</th>
+          <th scope="col">Total Investido</th>
+          <th scope="col">Total Atual</th>
+          <th scope="col">Rendimento</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+        <tr key="category">
+          <td key="pk" style="display:none">{{category.pk}}</td>
+          <td key="title" class="align-middle">{{category.title}}</td>
+          <td key="sum" class="align-middle">{{category.sum}}</td>
+          <td key="current_value" class="align-middle">...</td>
+          <td key="yield" class="align-middle">...</td>
+        </tr>
+
+        {% endfor %}
+
+        {% if savings %}
+          <tr key="savings" class="bg-success">
+            <td key="title" class="align-middle">{{savings.title}}</td>
+            <td key="sum" class="align-middle">{{savings.sum}}</td>
+            <td key="current_value" class="align-middle">{{savings.current_value}}</td>
+            <td key="yield" class="align-middle">{{savings.yield}}</td>
+          </tr>
+        {% endif %}
+
+        <tr key="total" style="font-weight: bold;">
+          <td key="title" class="align-middle">TOTAL</td>
+          <td key="sum" class="align-middle">{{total_sum}}</td>
+          <td key="current_value" class="align-middle">...</td>
+          <td key="yield" class="align-middle">...</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script src="{% static '/js/summary.js' %}"></script>
+
+{% endblock %}
+{% endif %}
