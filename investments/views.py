@@ -119,3 +119,13 @@ def summary(request):
   total_sum += savings_sum
 
   return render(request, 'Summary/summary.html', {'categories': list(ret_categories.values()), 'total_sum': "%.2f"%total_sum, 'savings': savings_return})
+
+def history(request):
+  if(request.user.is_anonymous):
+    return redirect('/admin')
+
+  purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=F('value')*F('transfer__value')/F('transfer__final_value')+F('taxes_value'), total_value=F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value'), code=F("asset__code"), short_code=F("asset__short_code")).filter(asset__user = request.user).order_by('-date')
+
+  return render(request, 'History/history.html', {'purchases': purchases})
+
+  # F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value')

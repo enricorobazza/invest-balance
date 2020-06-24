@@ -1,0 +1,52 @@
+{% extends '../main.html' %}
+{% load static %}
+{% if purchases %}
+{% block content %}
+
+{% csrf_token %} 
+
+<div class="row m-3">
+  <div class="col-md-12 text-dark h2 px-0">
+    Histórico de Compras
+  </div>
+  <div class="table-responsive">
+    <table id="purchases" class="table my-2 table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Data</th>
+          <th scope="col">Valor Pago (R$)</th>
+          <th scope="col">Valor Atual (R$)</th>
+          <th scope="col">Quantidade</th>
+          <th scope="col">Valor Total Pago (R$)</th>
+          <th scope="col">Lucro / Ação (R$)</th>
+          <th scope="col">Lucro Total (R$)</th>
+          <th scope="col">Rendimento (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for purchase in purchases %}
+        <tr>
+          <td style="display:none" key="code">{{purchase.code}}</td>
+          <td key="short_code" class="align-middle">{{purchase.short_code}}</td>
+          <td key="date" class="align-middle">{{purchase.date|date:'d/m/Y'}}</td>
+          <td key="paid_value" class="align-middle">{{purchase.paid_value|floatformat:2}}</td>
+          <td key="current_value" class="align-middle">...</td>
+          <td key="amount" class="align-middle">{{purchase.amount}}</td>
+          <td key="total_value" class="align-middle">{{purchase.total_value|floatformat:2}}</td>
+          <td key="profit_per_share" class="align-middle">...</td>
+          <td key="total_profit" class="align-middle">...</td>
+          <td key="yield" class="align-middle">...</td>
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="{% static '/js/history.js' %}"></script>
+
+{% endblock %}
+{% endif %}
