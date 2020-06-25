@@ -1,0 +1,38 @@
+{% extends 'base.html' %} {% block site %} {% load static %}
+<style>
+  html,
+  body,
+  .background {
+    height: 100%;
+    width: 100%;
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-align: center;
+    -ms-flex-pack: center;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+  }
+
+  .card {
+    padding: 40px 20px;
+  }
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+{% block header %} {% endblock %}
+
+<div class="background bg-dark">
+  <div class="card text-center col-md-4 bg-white">
+    {% block content %} {% endblock %}
+  </div>
+</div>
+
+{% endblock %}

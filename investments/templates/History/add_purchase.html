@@ -1,0 +1,82 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-4 offset-4">
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.asset.errors}}
+          <label for="{{form.asset.id_for_label}}">Ativo: </label>
+          {{ form.asset }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.date.errors}}
+          <label for="{{form.date.id_for_label}}">Data de Compra: </label>
+          {{ form.date }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.value.errors}}
+          <label for="{{form.value.id_for_label}}">Valor pago / ação: </label>
+          {{ form.value }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.amount.errors}}
+          <label for="{{form.amount.id_for_label}}">Quantidade de Ações: </label>
+          {{ form.amount }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.transfer.errors}}
+          <label for="{{form.transfer.id_for_label}}">Transferência proveniente: </label>
+          {{ form.transfer }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.taxes_value.errors}}
+          <label for="{{form.taxes_value.id_for_label}}">Taxa de compra: </label>
+          {{ form.taxes_value }}
+        </div>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Cadastrar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  $(document).ready(() => {
+    $(".datepicker").datepicker({
+      uiLibrary: 'bootstrap4',
+      value: moment(new Date()).tz('America/Sao_paulo').format("DD/MM/YYYY"),
+      locale: 'pt-br',
+      format: 'dd/mm/yyyy'
+    });
+  });
+</script>
+
+
+{% endblock %}

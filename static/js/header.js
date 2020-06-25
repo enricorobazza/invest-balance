@@ -18,4 +18,4 @@ clear();
 if(path.startsWith('/invest')) invest.classList.add('active');
 else if(path.startsWith('/assets')) assets.classList.add('active');
 else if(path.startsWith('/history')) history.classList.add('active');
-else summary.classList.add('active');
+else if(path === "/") summary.classList.add('active');

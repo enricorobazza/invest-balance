@@ -1,6 +1,5 @@
 {% extends '../main.html' %}
 {% load static %}
-{% if assets %}
 {% block content %}
 
 {% csrf_token %} 
@@ -23,6 +22,7 @@
         </tr>
       </thead>
       <tbody>
+        {% if assets %}
         {% for asset in assets %}
         <tr>
           <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
@@ -35,6 +35,7 @@
         </tr>
 
         {% endfor %}
+        {% endif %}
 
       </tbody>
     </table>
@@ -44,4 +45,3 @@
 <script src="{% static '/js/list_assets.js' %}"></script>
 
 {% endblock %}
-{% endif %}

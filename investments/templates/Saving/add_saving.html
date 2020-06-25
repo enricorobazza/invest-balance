@@ -1,0 +1,78 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-4 offset-4">
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.bank.errors}}
+          <label for="{{form.bank.id_for_label}}">Banco: </label>
+          {{ form.bank }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.amount.errors}}
+          <label for="{{form.amount.id_for_label}}">Valor Inicial: </label>
+          {{ form.amount }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.final_amount.errors}}
+          <label for="{{form.final_amount.id_for_label}}">Valor final: </label>
+          {{ form.final_amount }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.date.errors}}
+          <label for="{{form.date.id_for_label}}">Data: </label>
+          {{ form.date }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.category.errors}}
+          <label for="{{form.category.id_for_label}}">Categoria: </label>
+          {{ form.category }}
+        </div>
+      </div>
+
+      <div class="alert alert-secondary" role="alert">
+        A categoria de todas as transações para o caixa deve ser a mesma.
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Cadastrar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  $(document).ready(() => {
+    $(".datepicker").datepicker({
+      uiLibrary: 'bootstrap4',
+      value: moment(new Date()).tz('America/Sao_paulo').format("DD/MM/YYYY"),
+      locale: 'pt-br',
+      format: 'dd/mm/yyyy'
+    });
+  });
+</script>
+
+
+{% endblock %}

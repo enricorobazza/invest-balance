@@ -5,6 +5,12 @@
 
 {% csrf_token %} 
 
+<script type='text/javascript'>
+  let savings_current_value = parseFloat("{{saving_asset.have|safe}}")
+  if(isNaN(savings_current_value)) savings_current_value = 0;
+</script>
+
+
 <div class="row m-3">
   <div class="col-12 text-dark h2 px-0">
     <form action="#" id="simulate_investment" class="col-12 col-sm-9 col-md-6 col-lg-4 m-0 p-0 mt-3 text-right float-right">

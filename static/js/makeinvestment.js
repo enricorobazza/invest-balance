@@ -1,6 +1,6 @@
 let promise_count = 0;
 const assets_count = $('tbody tr[key="asset"]').length;
-let global_patrimony = 0;
+let global_patrimony = savings_current_value;
 
 function sortTable() {
   var table, rows, switching, i, x, y, shouldSwitch;
@@ -45,7 +45,7 @@ const updatePercentages = (patrimony) => {
   $('tbody tr[key="asset"]').each((index, elem) => {
     const _price = parseFloat($($(elem).find('td[key="price"]')[0]).html());
     const _have = parseFloat($($(elem).find('td[key="have"]')[0]).html());
-    const have_percentage = (_have / patrimony) * 100;
+    const have_percentage = patrimony > 0 ? (_have / patrimony) * 100 : 0;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
       have_percentage.toFixed(2)
     );
@@ -93,7 +93,7 @@ const updatePercentages = (patrimony) => {
 };
 
 const getPrices = () => {
-  global_patrimony = 0;
+  global_patrimony = savings_current_value;
   $('tbody tr[key="asset"]').each((index, elem) => {
     let code = $($(elem).find('td[key="code"]')[0]).html();
     $.ajax({
@@ -118,6 +118,7 @@ getPrices();
 $("#simulate_investment").on('submit', (e) => {
   e.preventDefault();
   simulated_investment = parseFloat($("#simulated_investment").val())
+  if(isNaN(simulated_investment)) simulated_investment = 0;
   new_patrimony = global_patrimony + simulated_investment;
   updatePercentages(new_patrimony);
 })

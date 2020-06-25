@@ -7,7 +7,8 @@
 
 <script type='text/javascript'>
   const categories = JSON.parse("{{categories|safe}}".replace(/'/g, '"'));
-  const savings_current_value = parseFloat("{{savings.current_value|safe}}")
+  let savings_current_value = parseFloat("{{savings.current_value|safe}}")
+  if(isNaN(savings_current_value)) savings_current_value = 0;
 </script>
 
 <div class="row m-3">

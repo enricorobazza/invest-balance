@@ -1,0 +1,74 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-4 offset-4">
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.from_currency.errors}}
+          <label for="{{form.from_currency.id_for_label}}">Moeda proveniente: </label>
+          {{ form.from_currency }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.to_currency.errors}}
+          <label for="{{form.to_currency.id_for_label}}">Moeda de destino: </label>
+          {{ form.to_currency }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.value.errors}}
+          <label for="{{form.value.id_for_label}}">Valor na moeda proveniente: </label>
+          {{ form.value }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.final_value.errors}}
+          <label for="{{form.final_value.id_for_label}}">Valor na moeda de destino: </label>
+          {{ form.final_value }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.date.errors}}
+          <label for="{{form.date.id_for_label}}">Data: </label>
+          {{ form.date }}
+        </div>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Cadastrar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  $(document).ready(() => {
+    $(".datepicker").datepicker({
+      uiLibrary: 'bootstrap4',
+      value: moment(new Date()).tz('America/Sao_paulo').format("DD/MM/YYYY"),
+      locale: 'pt-br',
+      format: 'dd/mm/yyyy'
+    });
+  });
+</script>
+
+
+{% endblock %}

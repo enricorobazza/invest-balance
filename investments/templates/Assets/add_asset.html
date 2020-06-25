@@ -1,0 +1,77 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<!-- fields = ('stock_exchange', 'category', 'name', 'short_code', 'code', 'user', 'score') -->
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-4 offset-4">
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.stock_exchange.errors}}
+          <label for="{{form.stock_exchange.id_for_label}}">Bolsa: </label>
+          {{ form.stock_exchange }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.category.errors}}
+          <label for="{{form.category.id_for_label}}">Categoria: </label>
+          <div class="d-flex">
+            {{ form.category }}
+            <a class="btn btn-success ml-2" href="{% url 'add_category'%}"
+              ><i class="fa fa-plus"></i
+            ></a>
+          </div>  
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.name.errors}}
+          <label for="{{form.name.id_for_label}}">Nome: </label>
+          {{ form.name }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.short_code.errors}}
+          <label for="{{form.short_code.id_for_label}}">Código Curto: </label>
+          {{ form.short_code }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.code.errors}}
+          <label for="{{form.code.id_for_label}}">Código Completo (com .SA): </label>
+          {{ form.code }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.score.errors}}
+          <label for="{{form.score.id_for_label}}">Nota: </label>
+          {{ form.score }}
+        </div>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Cadastrar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

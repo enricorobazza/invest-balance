@@ -37,6 +37,7 @@ class Transfer(models.Model):
   value = models.FloatField()
   final_value = models.FloatField()
   date = models.DateField(default=timezone.now)
+  user = models.ForeignKey(User, related_name="transfer_user", on_delete=models.CASCADE)
 
   def __str__(self):
     return "%s(%s) -> %s(%s) at (%s)" % (self.value, self.from_currency, self.final_value, self.to_currency, self.date)
@@ -81,4 +82,3 @@ class Saving(models.Model):
 
   def __str__(self):
     return "%s (%s) at %s" %(self.amount, str(self.bank), self.date)
-

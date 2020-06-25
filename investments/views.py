@@ -5,6 +5,9 @@ from django.db.models import F, FloatField, Sum, Avg
 import json
 import urllib.request
 from forex_python.converter import CurrencyRates
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from investments.forms import UserLoginForm, AssetForm, CategoryForm, AssetPurchaseForm, TransferForm, SavingForm
+from datetime import datetime
 
 class SavingAsAsset():
   def __init__(self, code, category, have, ideal_percentage):
@@ -13,14 +16,34 @@ class SavingAsAsset():
     self.have = have
     self.ideal_percentage = ideal_percentage * 100
 
+def login(request):
+    next = request.GET.get('next')
+    if(request.user.is_authenticated):
+        return redirect(next or '/')
+
+    form = UserLoginForm(request.POST or None)
+    if form.is_valid():
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        user = authenticate(username=username, password=password)
+        auth_login(request, user)
+        return redirect(next or '/')
+
+    return render(request, 'Accounts/login.html', {'form': form})
+
+
+def logout(request):
+    auth_logout(request)
+    return redirect('/')
+
 
 def list_assets(request):
   if(request.user.is_anonymous):
-    return redirect('/admin')
+    return redirect('/login')
 
   assets = Asset.objects.filter(user=request.user)
   for asset in assets:
-    asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(cost_sum=Sum(F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value'), output_field=FloatField()), count=Sum(F('amount'), output_field=FloatField()))
+    asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(cost_sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), output_field=FloatField()), count=Sum(F('amount'), output_field=FloatField()))
 
     if(asset_purchases['cost_sum']):
       asset.cost_avg = "%.2f" % (asset_purchases['cost_sum'] / asset_purchases['count'])
@@ -47,7 +70,7 @@ def get_stock_price(request, code):
 
 def make_investment(request):
   if(request.user.is_anonymous):
-    return redirect('/admin')
+    return redirect('/login')
 
   assets = Asset.objects.filter(user=request.user)
   categories = Category.objects.filter(user=request.user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
@@ -85,9 +108,9 @@ def make_investment(request):
 
 def summary(request):
   if(request.user.is_anonymous):
-    return redirect('/admin')
+    return redirect('/login')
     
-  categories = AssetPurchase.objects.values(pk=F('asset__category'), title=F('asset__category__title')).filter(asset__user=request.user).annotate(sum=Sum(F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value')))
+  categories = AssetPurchase.objects.values(pk=F('asset__category'), title=F('asset__category__title')).filter(asset__user=request.user).annotate(sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value')))
 
   ret_categories = {}
   total_sum = 0
@@ -111,10 +134,11 @@ def summary(request):
     savings_current_value += saving.final_amount
 
   savings_return = {}
-  savings_return["title"] = savings[0].category.title
-  savings_return["sum"] = "%.2f" % savings_sum
-  savings_return["current_value"] = "%.2f" % savings_current_value
-  savings_return["yield"] = "%.2f" % ((savings_current_value - savings_sum) / savings_sum * 100)
+  if(len(savings) > 0):
+    savings_return["title"] = savings[0].category.title
+    savings_return["sum"] = "%.2f" % savings_sum
+    savings_return["current_value"] = "%.2f" % savings_current_value
+    savings_return["yield"] = "%.2f" % ((savings_current_value - savings_sum) / savings_sum * 100)
 
   total_sum += savings_sum
 
@@ -122,10 +146,101 @@ def summary(request):
 
 def history(request):
   if(request.user.is_anonymous):
-    return redirect('/admin')
+    return redirect('/login')
 
-  purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=F('value')*F('transfer__value')/F('transfer__final_value')+F('taxes_value'), total_value=F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value'), code=F("asset__code"), short_code=F("asset__short_code")).filter(asset__user = request.user).order_by('-date')
+  purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=(F('value')+F('taxes_value')/F('amount'))*F('transfer__value')/F('transfer__final_value'), total_value=(F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), code=F("asset__code"), short_code=F("asset__short_code")).filter(asset__user = request.user).order_by('-date')
 
   return render(request, 'History/history.html', {'purchases': purchases})
 
-  # F('value')*F('amount')*F('transfer__value')/F('transfer__final_value')+F('taxes_value')
+def add_asset(request):
+  if request.method == 'POST':
+      data = request.POST.copy()
+      data['user'] = request.user
+
+      form = AssetForm(request.user, data)
+
+      if form.is_valid():
+          asset = form.save()
+          return redirect('/assets')
+      else:
+          print(form.errors)
+          return JsonResponse({'success': False, 'errors': form.errors}, safe=False)
+  else:
+      form = AssetForm(request.user)
+      return render(request, 'Assets/add_asset.html', {
+          'form': form
+      })
+
+def add_category(request):
+  if request.method == 'POST':
+      data = request.POST.copy()
+      data['user'] = request.user
+      form = CategoryForm(data)
+      if form.is_valid():
+          asset = form.save()
+          return redirect('/')
+      else:
+          print(form.errors)
+          return JsonResponse({'success': False, 'errors': form.errors}, safe=False)
+  else:
+      form = CategoryForm()
+      return render(request, 'Category/add_category.html', {
+          'form': form
+      })
+
+def add_purchase(request):
+  if request.method == 'POST':
+      data = request.POST.copy()
+      data['user'] = request.user
+      data['date'] = datetime.strptime(
+                data['date'], '%d/%m/%Y')
+      form = AssetPurchaseForm(request.user, data)
+      if form.is_valid():
+          asset = form.save()
+          return redirect('/history')
+      else:
+          print(form.errors)
+          return JsonResponse({'success': False, 'errors': form.errors}, safe=False)
+  else:
+      form = AssetPurchaseForm(request.user)
+      return render(request, 'History/add_purchase.html', {
+          'form': form
+      })
+
+def add_transfer(request):
+  if request.method == 'POST':
+      data = request.POST.copy()
+      data['user'] = request.user
+      data['date'] = datetime.strptime(
+                data['date'], '%d/%m/%Y')
+      form = TransferForm(data)
+      if form.is_valid():
+          asset = form.save()
+          return redirect('/')
+      else:
+          print(form.errors)
+          return JsonResponse({'success': False, 'errors': form.errors}, safe=False)
+  else:
+      form = TransferForm()
+      return render(request, 'Transfer/add_transfer.html', {
+          'form': form
+      })
+
+def add_saving(request):
+  if request.method == 'POST':
+      data = request.POST.copy()
+      data['user'] = request.user
+      data['date'] = datetime.strptime(
+                data['date'], '%d/%m/%Y')
+      form = SavingForm(request.user,data)
+      if form.is_valid():
+          asset = form.save()
+          return redirect('/')
+      else:
+          print(form.errors)
+          return JsonResponse({'success': False, 'errors': form.errors}, safe=False)
+  else:
+      form = SavingForm(request.user)
+      return render(request, 'Saving/add_saving.html', {
+          'form': form
+      })

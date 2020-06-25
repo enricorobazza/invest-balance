@@ -1,0 +1,42 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+
+    <div class="col-4 offset-4">
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.title.errors}}
+          <label for="{{form.title.id_for_label}}">Título: </label>
+          {{ form.title }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.weight.errors}}
+          <label for="{{form.weight.id_for_label}}">Peso na Carteira: </label>
+          {{ form.weight }}
+        </div>
+      </div>
+      <div class="alert alert-secondary" role="alert">
+        Todos os pesos são somados, então é feita uma regra de 3 pra encontrar a porcentagem.
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Cadastrar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}
