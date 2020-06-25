@@ -22,7 +22,7 @@ $('tbody tr[key="category"]').each(async (index, elem) => {
   if(current_value >= sum) $(elem).addClass('bg-success');
   else $(elem).addClass('bg-danger');
 
-  const yield = (current_value - sum)/current_value * 100;
+  const yield = (current_value - sum)/sum * 100;
 
   $($(elem).find('td[key="current_value"]')[0]).html(current_value.toFixed(2));
   $($(elem).find('td[key="yield"]')[0]).html(yield.toFixed(2));
