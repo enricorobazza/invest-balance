@@ -38,16 +38,16 @@
         <a class="nav-link" href="{% url 'history' %}">Histórico</a>
       </li>
       <li id="add_header" class="nav-item">
-        <div class="dropdown" style="display: inline-block">
-          <a class="btn dropdown-toggle nav-link" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="dropdown d-block text-left d-md-inline mb-3 mb-sm-0">
+          <a class="btn dropdown-toggle nav-link text-left text-md-center" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Adicionar
           </a>
-          <div class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item text-white" href="{% url 'add_category' %}">Categoria</a>
-            <a class="dropdown-item text-white" href="{% url 'add_asset' %}">Ativo</a>
-            <a class="dropdown-item text-white" href="{% url 'add_transfer' %}">Transferência</a>
-            <a class="dropdown-item text-white" href="{% url 'add_purchase' %}">Compra</a>
-            <a class="dropdown-item text-white" href="{% url 'add_saving' %}">Caixa</a>
+          <div class="dropdown-menu bg-dark w-100 w-sm-auto" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item text-white my-1 my-md-0 py-4 py-md-2 border border-secondary border-md-0" href="{% url 'add_category' %}">Categoria</a>
+            <a class="dropdown-item text-white my-1 my-md-0 py-4 py-md-2 border border-secondary border-md-0" href="{% url 'add_asset' %}">Ativo</a>
+            <a class="dropdown-item text-white my-1 my-md-0 py-4 py-md-2 border border-secondary border-md-0" href="{% url 'add_transfer' %}">Transferência</a>
+            <a class="dropdown-item text-white my-1 my-md-0 py-4 py-md-2 border border-secondary border-md-0" href="{% url 'add_purchase' %}">Compra</a>
+            <a class="dropdown-item text-white my-1 my-md-0 py-4 py-md-2 border border-secondary border-md-0" href="{% url 'add_saving' %}">Caixa</a>
           </div>
         </div>
       </li>
