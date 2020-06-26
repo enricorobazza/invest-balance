@@ -26,6 +26,14 @@
         Todos os pesos são somados, então é feita uma regra de 3 pra encontrar a porcentagem.
       </div>
 
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.type.errors}}
+          <label for="{{form.type.id_for_label}}">Tipo: </label>
+          {{ form.type }}
+        </div>
+      </div>
+
       <div class="form-row mt-3">
         <div class="form-group col-4 offset-4">
           <input

@@ -6,8 +6,8 @@
 {% csrf_token %} 
 
 <script type='text/javascript'>
-  let savings_current_value = parseFloat("{{saving_asset.have|safe}}")
-  if(isNaN(savings_current_value)) savings_current_value = 0;
+  let initial_patrimony = parseFloat("{{initial_patrimony|safe}}")
+  if(isNaN(initial_patrimony)) initial_patrimony = 0;
 </script>
 
 
@@ -52,22 +52,22 @@
 
         {% endfor %}
 
-        {% if saving_asset %}
+        {% for saving_category in savings %}
 
         <tr key="saving" style="font-weight: bold;">
-          <td key="code" class="align-middle">{{saving_asset.code}}</td>
-          <td key="category" class="align-middle">{{saving_asset.category}}</td>
+          <td key="code" class="align-middle">--</td>
+          <td key="category" class="align-middle">{{saving_category.title}}</td>
           <td key="score" class="align-middle"> - </td>
           <td key="price" class="align-middle"> - </td>
           <td key="count" class="align-middle"> - </td>
-          <td key="have" class="align-middle">{{saving_asset.have|floatformat:2}}</td>
+          <td key="have" class="align-middle">{{saving_category.final_amount|floatformat:2}}</td>
           <td key="have_percentage" class="align-middle">...</td>
-          <td key="ideal_percentage" class="align-middle">{{saving_asset.ideal_percentage}}</td>
+          <td key="ideal_percentage" class="align-middle">{{saving_category.ideal_percentage}}</td>
           <td key="to_invest" class="align-middle">...</td>
           <td key="to_invest_count" class="align-middle">...</td>
         </tr>
 
-        {% endif %}
+        {% endfor %}
 
       </tbody>
     </table>

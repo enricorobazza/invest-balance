@@ -13,10 +13,17 @@ class Currency(models.Model):
   def __str__(self):
     return self.code
 
+class CategoryType(models.Model):
+  type = models.CharField(max_length=255)
+
+  def __str__(self):
+    return self.type
+
 class Category(models.Model):
   title = models.CharField(max_length=255)
   weight = models.IntegerField()
   user = models.ForeignKey(User, related_name="category_owner", on_delete=models.CASCADE)
+  type = models.ForeignKey(CategoryType, related_name="category_type", on_delete=models.PROTECT, null=True)
 
   class Meta:
     verbose_name_plural = "categories"

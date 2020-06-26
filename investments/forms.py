@@ -32,7 +32,7 @@ class AssetForm(forms.ModelForm):
         super(AssetForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control'
-        self.fields['category'].queryset = Category.objects.filter(user=user)
+        self.fields['category'].queryset = Category.objects.filter(user=user, type=1)
         self.fields['name'].widget.attrs['placeholder'] = "Ex: Ambev"
         self.fields['short_code'].widget.attrs['placeholder'] = "Ex: ABEV3"
         self.fields['code'].widget.attrs['placeholder'] = "Ex: ABEV3.SA"
@@ -41,7 +41,7 @@ class AssetForm(forms.ModelForm):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ('title', 'weight', 'user')
+        fields = ('title', 'weight', 'user', 'type')
 
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
@@ -89,4 +89,4 @@ class SavingForm(forms.ModelForm):
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control'
         self.fields['date'].widget.attrs['class'] += ' datepicker'
-        self.fields['category'].queryset = Category.objects.filter(user=user)
+        self.fields['category'].queryset = Category.objects.filter(user=user, type=2)

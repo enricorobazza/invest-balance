@@ -1,6 +1,6 @@
 const categories_count = categories.length;
 let fetched_categories_count = 0;
-let patrimony = savings_current_value;
+let patrimony = initial_patrimony;
 
 $('tbody tr[key="category"]').each(async (index, elem) => {
   const pk = parseInt($($(elem).find('td[key="pk"]')[0]).html())

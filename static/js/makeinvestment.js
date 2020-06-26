@@ -1,6 +1,6 @@
 let promise_count = 0;
 const assets_count = $('tbody tr[key="asset"]').length;
-let global_patrimony = savings_current_value;
+let global_patrimony = initial_patrimony;
 
 function sortTable() {
   var table, rows, switching, i, x, y, shouldSwitch;
@@ -68,32 +68,34 @@ const updatePercentages = (patrimony) => {
   });
 
   // SAVINGS
-  const trSaving = $('tbody tr[key="saving"]')[0];
-  const have_saved = parseFloat(
-    $($(trSaving).find('td[key="have"]')[0]).html()
-  );
-  const ideal_save_percentage = parseFloat(
-    $($(trSaving).find('td[key="ideal_percentage"]')[0]).html()
-  );
-  const saved_percentage = (have_saved / patrimony) * 100;
-  $($(trSaving).find('td[key="have_percentage"]')[0]).html(
-    saved_percentage.toFixed(2)
-  );
-  const to_save = (ideal_save_percentage / 100) * patrimony - have_saved;
-  $($(trSaving).find('td[key="to_invest"]')[0]).html(to_save.toFixed(2));
-  
-  $(trSaving).removeClass('bg-danger');
-  $(trSaving).removeClass('bg-success');
+  $('tbody tr[key="saving"]').each((index, elem) => {
+    const have_saved = parseFloat(
+      $($(elem).find('td[key="have"]')[0]).html()
+    );
+    const ideal_save_percentage = parseFloat(
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
+    );
+    const saved_percentage = (have_saved / patrimony) * 100;
+    $($(elem).find('td[key="have_percentage"]')[0]).html(
+      saved_percentage.toFixed(2)
+    );
 
-  if (saved_percentage > ideal_save_percentage)
-    $(trSaving).addClass('bg-danger');
-  else $(trSaving).addClass('bg-success');
+    const to_save = (ideal_save_percentage / 100) * patrimony - have_saved;
+    $($(elem).find('td[key="to_invest"]')[0]).html(to_save.toFixed(2));
+    
+    $(elem).removeClass('bg-danger');
+    $(elem).removeClass('bg-success');
+  
+    if (saved_percentage > ideal_save_percentage)
+      $(elem).addClass('bg-danger');
+    else $(elem).addClass('bg-success');
+  });
 
   sortTable();
 };
 
 const getPrices = () => {
-  global_patrimony = savings_current_value;
+  global_patrimony = initial_patrimony;
   $('tbody tr[key="asset"]').each((index, elem) => {
     let code = $($(elem).find('td[key="code"]')[0]).html();
     $.ajax({

@@ -73,9 +73,10 @@ def make_investment(request):
     return redirect('/login')
 
   assets = Asset.objects.filter(user=request.user)
+
   categories = Category.objects.filter(user=request.user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
-  savings_sum = Saving.objects.filter(user=request.user).aggregate(sum=Sum('final_amount', output_field=FloatField()))
-  savings = Saving.objects.filter(user=request.user)
+
+  saving_categories = Saving.objects.values('category', title=F('category__title') ,weight=F('category__weight')).filter(user=request.user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
 
   score_sum_by_category = {}
 
@@ -97,13 +98,13 @@ def make_investment(request):
     ideal_percentage = asset.score / score_sum_by_category[asset.category.pk] * category_weight * 100
     asset.ideal_percentage = "%.2f" % ideal_percentage  
 
-  saving_asset = None
+  initial_patrimony = 0
 
-  if(len(savings) > 0):
-    category_weight = savings[0].category.weight / categories["weight_sum"]
-    saving_asset = SavingAsAsset("CAIXA", savings[0].category, savings_sum["sum"], category_weight)
+  for saving_category in saving_categories:
+    initial_patrimony += saving_category["final_amount"]
+    saving_category["ideal_percentage"] = saving_category["weight"] / categories["weight_sum"] * 100
 
-  return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets, 'saving_asset': saving_asset})
+  return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets, 'savings': saving_categories, 'initial_patrimony': initial_patrimony})
 
 
 def summary(request):
@@ -124,25 +125,17 @@ def summary(request):
     ret_category["sum"] = "%.2f" % category["sum"]
     ret_category["assets"] = list(assets.values("code", "amount"))
     ret_categories[category["pk"]] = ret_category
-  
-  savings = Saving.objects.filter(user=request.user)
-  savings_sum = 0
-  savings_current_value = 0
 
-  for saving in savings:
-    savings_sum += saving.amount
-    savings_current_value += saving.final_amount
+  saving_categories = Saving.objects.values(title=F('category__title')).filter(user=request.user).annotate(current_value=Sum('final_amount', output_field=FloatField()), sum=Sum('amount', output_field=FloatField()), yield_rate = (F('current_value') - F('sum'))/F('sum'))
 
-  savings_return = {}
-  if(len(savings) > 0):
-    savings_return["title"] = savings[0].category.title
-    savings_return["sum"] = "%.2f" % savings_sum
-    savings_return["current_value"] = "%.2f" % savings_current_value
-    savings_return["yield"] = "%.2f" % ((savings_current_value - savings_sum) / savings_sum * 100)
+  initial_patrimony = 0
 
-  total_sum += savings_sum
+  for saving in saving_categories:
+    total_sum += saving["sum"]
+    initial_patrimony += saving["current_value"]
+    saving["yield"] = "%.2f" % (saving["yield_rate"] * 100)
 
-  return render(request, 'Summary/summary.html', {'categories': list(ret_categories.values()), 'total_sum': "%.2f"%total_sum, 'savings': savings_return})
+  return render(request, 'Summary/summary.html', {'categories': list(ret_categories.values()), 'total_sum': "%.2f"%total_sum, 'savings': saving_categories, 'initial_patrimony': initial_patrimony})
 
 def history(request):
   if(request.user.is_anonymous):
