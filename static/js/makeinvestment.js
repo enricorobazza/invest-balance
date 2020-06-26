@@ -90,7 +90,7 @@ const updatePercentages = (patrimony) => {
       $(elem).addClass('bg-danger');
     else $(elem).addClass('bg-success');
   });
-
+  getDollarInvestments();
   sortTable();
 };
 
@@ -115,6 +115,19 @@ const getPrices = () => {
   });
 };
 
+const getDollarInvestments = () => {
+  $.ajax({
+    url: `/dollarquote`,
+    success: (result) => {
+      $('tbody tr').each((index, elem) => {
+        const to_invest = parseFloat($($(elem).find("td[key='to_invest']")[0]).html());
+        const to_invest_dollar = to_invest / result.quote;
+        $($(elem).find("td[key='to_invest_dollar']")[0]).html(to_invest_dollar.toFixed(2))
+      });
+    },
+  });
+}
+
 getPrices();
 
 $("#simulate_investment").on('submit', (e) => {
@@ -123,4 +136,16 @@ $("#simulate_investment").on('submit', (e) => {
   if(isNaN(simulated_investment)) simulated_investment = 0;
   new_patrimony = global_patrimony + simulated_investment;
   updatePercentages(new_patrimony);
+})
+
+$("#btnToInvestReal").click((e) => {
+  e.preventDefault();
+  $(".real").css('display', 'none');
+  $(".dollar").css('display', 'table-cell');
+})
+
+$("#btnToInvestDollar").click((e) => {
+  e.preventDefault();
+  $(".real").css('display', 'table-cell');
+  $(".dollar").css('display', 'none');
 })

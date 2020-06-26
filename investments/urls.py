@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.summary, name="summary"),
     re_path(r'^stock/(?P<code>[-\w.]+)/?$', views.get_stock_price, name='get_stock_price'),
+    path('dollarquote', views.get_dollar_quote, name="get_dollar_quote"),
     path('invest', views.make_investment, name="invest"),
     path('assets', views.list_assets, name="list_assets"),
     path('assets/add', views.add_asset, name="add_asset"),

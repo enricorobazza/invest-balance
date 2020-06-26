@@ -34,8 +34,13 @@
 
         {% endfor %}
 
+
         {% for saving in savings %}
+          {% if saving.current_value > saving.sum %}
           <tr key="savings" class="bg-success">
+          {% else %}
+          <tr key="savings" class="bg-danger">
+          {% endif %}
             <td key="title" class="align-middle">{{saving.title}}</td>
             <td key="sum" class="align-middle">{{saving.sum|floatformat:2}}</td>
             <td key="current_value" class="align-middle">{{saving.current_value|floatformat:2}}</td>

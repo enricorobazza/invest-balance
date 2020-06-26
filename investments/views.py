@@ -54,6 +54,11 @@ def list_assets(request):
       
   return render(request, 'Assets/list_assets.html', {'assets': assets})
 
+def get_dollar_quote(request):
+  c = CurrencyRates()
+  usd_value = c.convert('USD', 'BRL', 1)
+  return JsonResponse({"quote": usd_value})
+
 def get_stock_price(request, code):
   response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
   data = json.load(response)

@@ -10,6 +10,39 @@
   if(isNaN(initial_patrimony)) initial_patrimony = 0;
 </script>
 
+<style>
+  /* Tooltip container */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+    }
+    
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+    
+      /* Position the tooltip text - see examples below! */
+      position: absolute;
+      z-index: 1;
+    }
+    
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+    }
+
+    .dollar{
+      display: none;
+    }
+</style>
+
 
 <div class="row m-3">
   <div class="col-12 text-dark h2 px-0">
@@ -30,7 +63,8 @@
           <th scope="col">Tenho (R$)</th>
           <th scope="col">% Tenho</th>
           <th scope="col">% Ideal</th>
-          <th scope="col">A investir</th>
+          <th scope="col" class="real"><button class="btn btn-dark m-0 py-0" id="btnToInvestReal">A investir (R$)</button></th>
+          <th scope="col" class="dollar"><button class="btn btn-dark m-0 py-0" id="btnToInvestDollar">A investir ($)</button></th>
           <th scope="col">Falta</th>
         </tr>
       </thead>
@@ -46,7 +80,8 @@
           <td key="have" class="align-middle">...</td>
           <td key="have_percentage" class="align-middle">...</td>
           <td key="ideal_percentage" class="align-middle">{{asset.ideal_percentage}}</td>
-          <td key="to_invest" class="align-middle">...</td>
+          <td key="to_invest" class="align-middle real">...</td>
+          <td key="to_invest_dollar" class="align-middle dollar">...</td>
           <td key="to_invest_count" class="align-middle">...</td>
         </tr>
 
@@ -63,7 +98,8 @@
           <td key="have" class="align-middle">{{saving_category.final_amount|floatformat:2}}</td>
           <td key="have_percentage" class="align-middle">...</td>
           <td key="ideal_percentage" class="align-middle">{{saving_category.ideal_percentage}}</td>
-          <td key="to_invest" class="align-middle">...</td>
+          <td key="to_invest" class="align-middle real">...</td>
+          <td key="to_invest_dollar" class="align-middle dollar">...</td>
           <td key="to_invest_count" class="align-middle">...</td>
         </tr>
 
