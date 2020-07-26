@@ -8,6 +8,8 @@ from forex_python.converter import CurrencyRates
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from investments.forms import UserLoginForm, AssetForm, CategoryForm, AssetPurchaseForm, TransferForm, SavingForm
 from datetime import datetime
+from django.contrib.auth.models import User
+
 
 class SavingAsAsset():
   def __init__(self, code, category, have, ideal_percentage):
@@ -39,9 +41,12 @@ def logout(request):
 
 def list_assets(request):
   if(request.user.is_anonymous):
-    return redirect('/login')
+    user = User.objects.get(pk=1)
+  else:
+    user = request.user
+    # return redirect('/login')
 
-  assets = Asset.objects.filter(user=request.user)
+  assets = Asset.objects.filter(user=user)
   for asset in assets:
     asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(cost_sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), output_field=FloatField()), count=Sum(F('amount'), output_field=FloatField()))
 
@@ -75,13 +80,16 @@ def get_stock_price(request, code):
 
 def make_investment(request):
   if(request.user.is_anonymous):
-    return redirect('/login')
+    user = User.objects.get(pk=1)
+  else:
+    user = request.user
+    # return redirect('/login')
 
-  assets = Asset.objects.filter(user=request.user)
+  assets = Asset.objects.filter(user=user)
 
-  categories = Category.objects.filter(user=request.user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
+  categories = Category.objects.filter(user=user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
 
-  saving_categories = Saving.objects.values('category', title=F('category__title') ,weight=F('category__weight')).filter(user=request.user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
+  saving_categories = Saving.objects.values('category', title=F('category__title') ,weight=F('category__weight')).filter(user=user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
 
   score_sum_by_category = {}
 
@@ -114,9 +122,12 @@ def make_investment(request):
 
 def summary(request):
   if(request.user.is_anonymous):
-    return redirect('/login')
+    user = User.objects.get(pk=1)
+  else:
+    user = request.user
+    # return redirect('/login')
     
-  categories = AssetPurchase.objects.values(pk=F('asset__category'), title=F('asset__category__title')).filter(asset__user=request.user).annotate(sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value')))
+  categories = AssetPurchase.objects.values(pk=F('asset__category'), title=F('asset__category__title')).filter(asset__user=user).annotate(sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value')))
 
   ret_categories = {}
   total_sum = 0
@@ -131,7 +142,7 @@ def summary(request):
     ret_category["assets"] = list(assets.values("code", "amount"))
     ret_categories[category["pk"]] = ret_category
 
-  saving_categories = Saving.objects.values(title=F('category__title')).filter(user=request.user).annotate(current_value=Sum('final_amount', output_field=FloatField()), sum=Sum('amount', output_field=FloatField()), yield_rate = (F('current_value') - F('sum'))/F('sum'))
+  saving_categories = Saving.objects.values(title=F('category__title')).filter(user=user).annotate(current_value=Sum('final_amount', output_field=FloatField()), sum=Sum('amount', output_field=FloatField()), yield_rate = (F('current_value') - F('sum'))/F('sum'))
 
   initial_patrimony = 0
 
@@ -144,9 +155,12 @@ def summary(request):
 
 def history(request):
   if(request.user.is_anonymous):
-    return redirect('/login')
+    user = User.objects.get(pk=1)
+  else:
+    user = request.user
+    # return redirect('/login')
 
-  purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=(F('value')+F('taxes_value')/F('amount'))*F('transfer__value')/F('transfer__final_value'), total_value=(F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), code=F("asset__code"), short_code=F("asset__short_code")).filter(asset__user = request.user).order_by('-date')
+  purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=(F('value')+F('taxes_value')/F('amount'))*F('transfer__value')/F('transfer__final_value'), total_value=(F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), code=F("asset__code"), short_code=F("asset__short_code")).filter(asset__user = user).order_by('-date')
 
   return render(request, 'History/history.html', {'purchases': purchases})
 
@@ -155,7 +169,7 @@ def add_asset(request):
       data = request.POST.copy()
       data['user'] = request.user
 
-      form = AssetForm(request.user, data)
+      form = AssetForm(user, data)
 
       if form.is_valid():
           asset = form.save()
