@@ -64,6 +64,15 @@ def get_dollar_quote(request):
   usd_value = c.convert('USD', 'BRL', 1)
   return JsonResponse({"quote": usd_value})
 
+def get_options_price(request, code="BOVA11", option="BOVAU985"):
+  response = urllib.request.urlopen("https://opcoes.net.br/listaopcoes/completa?idAcao=%s&cotacoes=true&vencimentos=2020-08-17,2020-09-21,2020-10-19,2020-11-16,2020-12-21,2021-01-18,2022-03-18,2022-07-15"%code)
+  data = json.load(response)
+  opcoes = data.get("data").get("cotacoesOpcoes")
+  for opcao in opcoes:
+    if(opcao[0] == option+"_2020"):
+      return JsonResponse(opcao, safe=False)
+  return JsonResponse(data)
+
 def get_stock_price(request, code):
   response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
   data = json.load(response)
@@ -169,7 +178,7 @@ def add_asset(request):
       data = request.POST.copy()
       data['user'] = request.user
 
-      form = AssetForm(user, data)
+      form = AssetForm(request.user, data)
 
       if form.is_valid():
           asset = form.save()
