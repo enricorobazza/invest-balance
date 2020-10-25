@@ -136,6 +136,7 @@ $("#simulate_investment").on('submit', (e) => {
   if(isNaN(simulated_investment)) simulated_investment = 0;
   new_patrimony = global_patrimony + simulated_investment;
   updatePercentages(new_patrimony);
+  $(".btnOpen").css("display", "inline-block");
 })
 
 $("#btnToInvestReal").click((e) => {
@@ -148,4 +149,26 @@ $("#btnToInvestDollar").click((e) => {
   e.preventDefault();
   $(".real").css('display', 'table-cell');
   $(".dollar").css('display', 'none');
+})
+
+$(".btnOpen").click((e) => {
+  e.preventDefault();
+  $("#stepByStep").css('display', "block")
+  $(".stepper").html("");
+  let money = $("#simulated_investment").val();
+  let assetIndex = 0;
+  while(money > 0){
+    const row = $("#assets").find("tr")[assetIndex+1];
+    const to_invest = $($(row).find("td[key='to_invest']")[0]).html()
+    let short_code = $($(row).find("td[key='short_code']")[0]).html()
+    const category = $($(row).find("td[key='category']")[0]).html()
+    if(!short_code) short_code = category;
+    $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: ${to_invest}</li>`)
+    money -= to_invest;
+    assetIndex+= 1;
+  }
+
+  // [1, 2, 3, 4, 5].forEach((i) => {
+  //   $(".stepper").append(`<li>${i}º Passo</li>`)
+  // })
 })

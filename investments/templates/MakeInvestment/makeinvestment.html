@@ -14,6 +14,10 @@
   .dollar{
     display: none;
   }
+  #stepByStep{
+    border-left: 10px solid #456;
+  }
+
 </style>
 
 
@@ -22,8 +26,23 @@
     <form action="#" id="simulate_investment" class="col-12 col-sm-9 col-md-6 col-lg-4 m-0 p-0 mt-3 text-right float-right">
       <input style="vertical-align: middle;" id="simulated_investment" type="number" class="form-control d-inline col-5 m-0" placeholder="Valor"/>
       <button type="submit" class="btn btn-primary col-6 offset-1 m-0">Simular Investimento</button>
+      <button style="display: none" class="btn btn-primary col-6 offset-1 m-0 btnOpen">Abrir Passo a Passo</button>
     </form>
   </div>
+
+  <div id="stepByStep" style="display: none" class="my-3 bg-light col-12">
+    <div class="row my-1">
+      <div class="col-12">
+  
+        <ul class="stepper stepper-vertical">
+    
+          
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
   <div class="table-responsive">
     <table id="assets" class="table my-2 table-striped">
       <thead class="thead-dark">
