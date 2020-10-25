@@ -17,6 +17,7 @@ class SavingAsAsset():
     self.category = category
     self.have = have
     self.ideal_percentage = ideal_percentage * 100
+    self.fractioned = True
 
 def login(request):
     next = request.GET.get('next')
@@ -125,6 +126,7 @@ def make_investment(request):
   for saving_category in saving_categories:
     initial_patrimony += saving_category["final_amount"]
     saving_category["ideal_percentage"] = saving_category["weight"] / categories["weight_sum"] * 100
+    saving_category["fractioned"] = True
 
   return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets, 'savings': saving_categories, 'initial_patrimony': initial_patrimony})
 

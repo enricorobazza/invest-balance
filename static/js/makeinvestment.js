@@ -155,16 +155,39 @@ $(".btnOpen").click((e) => {
   e.preventDefault();
   $("#stepByStep").css('display', "block")
   $(".stepper").html("");
-  let money = $("#simulated_investment").val();
+  let money = parseFloat($("#simulated_investment").val());
   let assetIndex = 0;
   while(money > 0){
     const row = $("#assets").find("tr")[assetIndex+1];
-    const to_invest = $($(row).find("td[key='to_invest']")[0]).html()
+    let to_invest = parseFloat($($(row).find("td[key='to_invest']")[0]).html())
+    if(to_invest <= 0) break;
     let short_code = $($(row).find("td[key='short_code']")[0]).html()
     const category = $($(row).find("td[key='category']")[0]).html()
+    const fractioned = $($(row).find("td[key='fractioned']")[0]).html() === "True" ? true : false;
+    console.log($($(row).find("td[key='fractioned']")[0]).html());
+    if(fractioned) {
+      if(to_invest > money){
+        to_invest = money;
+      }
+    }
+    else{
+      const price = parseFloat($($(row).find("td[key='price']")[0]).html())
+      let to_invest_count = parseFloat($($(row).find("td[key='to_invest_count']")[0]).html())
+      to_invest_count = Math.floor(to_invest_count);
+      to_invest = price * to_invest_count;
+      while(to_invest > money){
+        to_invest -= price;
+      }
+    }
+
+    // if(to_invest > money && short_code && !fractioned) break;
+
     if(!short_code) short_code = category;
-    $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: ${to_invest}</li>`)
-    money -= to_invest;
+
+    if(to_invest > 0) {
+      $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: ${to_invest}</li>`)
+      money -= to_invest;
+    }
     assetIndex+= 1;
   }
 

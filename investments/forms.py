@@ -26,7 +26,7 @@ class UserLoginForm(forms.Form):
 class AssetForm(forms.ModelForm):
     class Meta:
         model = Asset
-        fields = ('stock_exchange', 'category', 'name', 'short_code', 'code', 'user', 'score')
+        fields = ('stock_exchange', 'category', 'name', 'short_code', 'code', 'user', 'score', 'fractioned')
 
     def __init__(self, user, *args, **kwargs):
         super(AssetForm, self).__init__(*args, **kwargs)

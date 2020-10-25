@@ -48,7 +48,7 @@
       <div class="form-row">
         <div class="form-group col-12">
           {{form.code.errors}}
-          <label for="{{form.code.id_for_label}}">Código Completo (com .SA): </label>
+          <label for="{{form.code.id_for_label}}">Código Completo (com .SA se for brasileira): </label>
           {{ form.code }}
         </div>
       </div>
@@ -60,6 +60,15 @@
           {{ form.score }}
         </div>
       </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.fractioned.errors}}
+          <label for="{{form.fractioned.id_for_label}}">Pode ser fracionado? </label>
+          {{ form.fractioned }}
+        </div>
+      </div>
+
 
       <div class="form-row mt-3">
         <div class="form-group col-4 offset-4">

@@ -50,6 +50,8 @@ class Transfer(models.Model):
     return "%s(%s) -> %s(%s) at (%s)" % (self.value, self.from_currency, self.final_value, self.to_currency, self.date)
 
 class Asset(models.Model):
+  BOOL_CHOICES = ((True, 'Sim'), (False, 'Não'))
+
   stock_exchange =  models.ForeignKey(StockExchange, related_name="asset_stock_exchange", on_delete=models.PROTECT)
   category = models.ForeignKey(Category, related_name="asset_category", on_delete=models.PROTECT)
   name = models.CharField(max_length=255)
@@ -57,6 +59,7 @@ class Asset(models.Model):
   code = models.CharField(max_length=20)
   user = models.ForeignKey(User, related_name="asset_user", on_delete=models.CASCADE)
   score = models.FloatField()
+  fractioned = models.BooleanField(verbose_name="Can be fractioned?", default=False, choices=BOOL_CHOICES)
 
   def __str__(self):
     return self.short_code
