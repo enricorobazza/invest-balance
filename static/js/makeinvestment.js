@@ -1,6 +1,7 @@
 let promise_count = 0;
 const assets_count = $('tbody tr[key="asset"]').length;
 let global_patrimony = initial_patrimony;
+let stepOpen = false;
 
 function sortTable() {
   var table, rows, switching, i, x, y, shouldSwitch;
@@ -137,6 +138,7 @@ $("#simulate_investment").on('submit', (e) => {
   new_patrimony = global_patrimony + simulated_investment;
   updatePercentages(new_patrimony);
   $(".btnOpen").css("display", "inline-block");
+  closeStepByStep();
 })
 
 $("#btnToInvestReal").click((e) => {
@@ -151,12 +153,26 @@ $("#btnToInvestDollar").click((e) => {
   $(".dollar").css('display', 'none');
 })
 
+const closeStepByStep = () => {
+  $("#stepByStep").css('display', "none")
+  stepOpen = false;
+  $(".btnOpen").html("Abrir Passo a Passo");
+}
+
 $(".btnOpen").click((e) => {
   e.preventDefault();
+  if(stepOpen) {
+    closeStepByStep();
+    return;
+  }
+  $(".btnOpen").html("Fechar Passo a Passo");
+  stepOpen = true;
   $("#stepByStep").css('display', "block")
   $(".stepper").html("");
   let money = parseFloat($("#simulated_investment").val());
   let assetIndex = 0;
+  let categorySum = {};
+  let total = 0;
   while(money > 0){
     const row = $("#assets").find("tr")[assetIndex+1];
     let to_invest = parseFloat($($(row).find("td[key='to_invest']")[0]).html())
@@ -173,25 +189,31 @@ $(".btnOpen").click((e) => {
     else{
       const price = parseFloat($($(row).find("td[key='price']")[0]).html())
       let to_invest_count = parseFloat($($(row).find("td[key='to_invest_count']")[0]).html())
-      to_invest_count = Math.floor(to_invest_count);
+      console.log(to_invest_count)
+      to_invest_count = Math.round(to_invest_count);
+      console.log(to_invest_count)
       to_invest = price * to_invest_count;
       while(to_invest > money){
         to_invest -= price;
       }
     }
 
-    // if(to_invest > money && short_code && !fractioned) break;
-
     if(!short_code) short_code = category;
 
     if(to_invest > 0) {
-      $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: ${to_invest}</li>`)
+      $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: ${to_invest.toFixed(2)}</li>`)
+      if(categorySum[category]) categorySum[category] += to_invest
+      else categorySum[category] = to_invest;
+      total += to_invest;
       money -= to_invest;
     }
     assetIndex+= 1;
   }
 
-  // [1, 2, 3, 4, 5].forEach((i) => {
-  //   $(".stepper").append(`<li>${i}º Passo</li>`)
-  // })
+  $(".stepper").append(`<hr />`)
+  Object.entries(categorySum).forEach(([key, value]) => {
+    $(".stepper").append(`<li>${key}: ${value.toFixed(2)}</li>`)
+  })
+  $(".stepper").append(`<hr />`)
+  $(".stepper").append(`<li>Total: ${total.toFixed(2)}</li>`)
 })
