@@ -7,8 +7,23 @@
 
 <style>
   #chartContainer{
-    width: 60%;
+    width: 30%;
     margin: 30px auto;
+  }
+  @media screen and (max-width: 1200px) {
+    #chartContainer{
+      width: 50%;
+    }
+  }
+  @media screen and (max-width: 1000px) {
+    #chartContainer{
+      width: 60%;
+    }
+  }
+  @media screen and (max-width: 800px) {
+    #chartContainer{
+      width: 75%;
+    }
   }
   @media screen and (max-width: 600px) {
     #chartContainer{
@@ -72,7 +87,7 @@
     </table>
   </div>
   <div id="chartContainer">
-    <canvas id="summaryChart" width="600" height="400"></canvas>
+    <canvas id="summaryChart" width="600" height="600"></canvas>
   </div>
   
 </div>
