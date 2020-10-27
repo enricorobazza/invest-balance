@@ -162,7 +162,7 @@ def summary(request):
     initial_patrimony += saving["current_value"]
     saving["yield"] = "%.2f" % (saving["yield_rate"] * 100)
 
-  return render(request, 'Summary/summary.html', {'categories': list(ret_categories.values()), 'total_sum': "%.2f"%total_sum, 'savings': saving_categories, 'initial_patrimony': initial_patrimony})
+  return render(request, 'Summary/summary.html', {'categories': list(ret_categories.values()), 'total_sum': "%.2f"%total_sum, 'savings': saving_categories, 'saving_categories':  list(saving_categories),'initial_patrimony': initial_patrimony})
 
 def history(request):
   if(request.user.is_anonymous):

@@ -16,6 +16,12 @@ $('tbody tr[key="category"]').each(async (index, elem) => {
   response.forEach(asset => {
     current_value += asset.price * category.assets.filter(a => a.code == asset.code)[0].amount;
   })
+  categories = categories.map((category) => {
+    if(category.pk === pk){
+      category.current_value = current_value;
+    }
+    return category;
+  })
   const sum = parseFloat($($(elem).find('td[key="sum"]')[0]).html());
   $(elem).removeClass('bg-success');
   $(elem).removeClass('bg-danger');
@@ -43,5 +49,34 @@ $('tbody tr[key="category"]').each(async (index, elem) => {
 
     if(patrimony > total_sum) $(totalTr).addClass('bg-success');
     else $(totalTr).addClass('bg-danger');
+
+    const colors = [
+      "#878BB6", 
+      "#4ACAB4", 
+      "#FF8153", 
+      "#FFEA88",
+      "#3498db",
+      "#2ecc71"
+    ]
+
+    const new_categories = categories.concat(savings)
+
+    const data = {
+      labels: new_categories.map(category => category.title),
+      datasets: [
+          {
+              data: new_categories.map(category => Math.round(category.current_value / patrimony * 10000)/100),
+              backgroundColor: new_categories.map((category, index) => colors[index%6])
+          }]
+    };
+
+    const ctx = document.getElementById("summaryChart").getContext("2d");
+
+    const myPieChart = new Chart(ctx, {
+      type: 'pie',
+      data,
+    });
   }
 })
+
+

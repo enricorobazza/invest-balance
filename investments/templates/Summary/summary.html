@@ -5,8 +5,21 @@
 
 {% csrf_token %} 
 
+<style>
+  #chartContainer{
+    width: 60%;
+    margin: 30px auto;
+  }
+  @media screen and (max-width: 600px) {
+    #chartContainer{
+      width: 90%;
+    }
+  }
+</style>
+
 <script type='text/javascript'>
-  const categories = JSON.parse("{{categories|safe}}".replace(/'/g, '"'));
+  let categories = JSON.parse("{{categories|safe}}".replace(/'/g, '"'));
+  let savings = JSON.parse("{{saving_categories|safe}}".replace(/'/g, '"'));
   let initial_patrimony = parseFloat("{{initial_patrimony|safe}}")
   if(isNaN(initial_patrimony)) initial_patrimony = 0;
 </script>
@@ -58,6 +71,10 @@
       </tbody>
     </table>
   </div>
+  <div id="chartContainer">
+    <canvas id="summaryChart" width="600" height="400"></canvas>
+  </div>
+  
 </div>
 
 
