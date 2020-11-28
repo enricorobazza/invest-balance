@@ -180,18 +180,15 @@ $(".btnOpen").click((e) => {
     let short_code = $($(row).find("td[key='short_code']")[0]).html()
     const category = $($(row).find("td[key='category']")[0]).html()
     const fractioned = $($(row).find("td[key='fractioned']")[0]).html() === "True" ? true : false;
-    console.log($($(row).find("td[key='fractioned']")[0]).html());
+    const price = parseFloat($($(row).find("td[key='price']")[0]).html())
     if(fractioned) {
       if(to_invest > money){
         to_invest = money;
       }
     }
     else{
-      const price = parseFloat($($(row).find("td[key='price']")[0]).html())
       let to_invest_count = parseFloat($($(row).find("td[key='to_invest_count']")[0]).html())
-      console.log(to_invest_count)
       to_invest_count = Math.round(to_invest_count);
-      console.log(to_invest_count)
       to_invest = price * to_invest_count;
       while(to_invest > money){
         to_invest -= price;
@@ -200,8 +197,11 @@ $(".btnOpen").click((e) => {
 
     if(!short_code) short_code = category;
 
+    let amount = price > 0 ? to_invest / price : 0;
+    amount = amount.toFixed(4).replace(/0{0,2}$/, "");
+
     if(to_invest > 0) {
-      $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: ${to_invest.toFixed(2)}</li>`)
+      $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: R$ ${to_invest.toFixed(2)} (${amount})</li>`)
       if(categorySum[category]) categorySum[category] += to_invest
       else categorySum[category] = to_invest;
       total += to_invest;
