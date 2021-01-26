@@ -1,0 +1,67 @@
+{% extends 'login_main.html' %}
+
+{% block content %}
+  <h2>Registrar</h2>
+
+  <form id="packageForm" class="p-3" method="post">
+    {% csrf_token %} 
+  
+    <div class="row">
+      <div class="col-12">
+  
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="{{form.email.id_for_label}}">E-mail: </label>
+            {{ form.email }}
+            <span class="text-danger">
+              {{form.email.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for=""organization">Organização: </label>
+            <input required type="text" class="form-control" name="organization"></input>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            
+            <label for="{{form.password1.id_for_label}}">Senha: </label>
+            {{ form.password1 }}
+            <span class="text-danger">
+              {{form.password1.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="{{form.password2.id_for_label}}">Repetir Senha: </label>
+            {{ form.password2 }}
+            <span class="text-danger">
+              {{form.password2.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row mt-3">
+          <div class="form-group col-12">
+            <input type="submit" class="form-control btn btn-info" value="Registrar-se" />
+          </div>
+        </div>
+
+        <span class="text-danger">
+          {{form.non_field_errors}}
+          {% if errors %}
+            {{errors}}
+          {% endif %}
+        </span>
+
+      </div>
+    </div>
+  </form>
+  
+{% endblock %}

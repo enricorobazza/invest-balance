@@ -4,10 +4,13 @@ from . import views
 urlpatterns = [
     path('', views.summary, name="summary"),
     re_path(r'^stock/(?P<code>[-\w.]+)/?$', views.get_stock_price, name='get_stock_price'),
+    re_path(r'^dividends/(?P<code>[-\w.]+)/?$', views.get_stock_dividends, name='get_stock_dividends'),
+    re_path(r'^history/(?P<code>[-\w.]+)/?$', views.get_stock_historical_price, name='get_stock_historical_price'),
     re_path(r'^option/(?P<code>[-\w.]+)/(?P<option>[-\w.]+)/?$', views.get_options_price, name='get_options_price'),
     path('dollarquote', views.get_dollar_quote, name="get_dollar_quote"),
     path('invest', views.make_investment, name="invest"),
     path('assets', views.list_assets, name="list_assets"),
+    re_path(r'^charts/(?P<code>[-\w.]+)/?$', views.charts, name='charts'),
     path('assets/add', views.add_asset, name="add_asset"),
     path('category/add', views.add_category, name="add_category"),
     path('transfer/add', views.add_transfer, name="add_transfer"),

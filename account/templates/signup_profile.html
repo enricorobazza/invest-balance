@@ -1,0 +1,95 @@
+{% extends 'login_main.html' %}
+
+{% block content %}
+  <h2>Registrar</h2>
+
+  <form id="packageForm" class="p-3" method="post">
+    {% csrf_token %} 
+  
+    <div class="row">
+      <div class="col-12">
+        
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="{{profile_form.name.id_for_label}}">Nome: </label>
+            {{ profile_form.name }}
+            <span class="text-danger">
+              {{profile_form.name.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="{{profile_form.rg.id_for_label}}">RG: </label>
+            {{ profile_form.rg }}
+            <span class="text-danger">
+              {{profile_form.rg.errors}}
+            </span>
+          </div>
+          <div class="form-group col-6">
+            <label for="{{profile_form.rg_issuing.id_for_label}}">Órgão Emissor: </label>
+            {{ profile_form.rg_issuing }}
+            <span class="text-danger">
+              {{profile_form.rg_issuing.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="{{profile_form.cpf.id_for_label}}">CPF: </label>
+            {{ profile_form.cpf }}
+            <span class="text-danger">
+              {{profile_form.cpf.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="{{user_form.email.id_for_label}}">E-mail: </label>
+            {{ user_form.email }}
+            <span class="text-danger">
+              {{user_form.email.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            
+            <label for="{{user_form.password1.id_for_label}}">Senha: </label>
+            {{ user_form.password1 }}
+            <span class="text-danger">
+              {{user_form.password1.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-12">
+            <label for="{{user_form.password2.id_for_label}}">Repetir Senha: </label>
+            {{ user_form.password2 }}
+            <span class="text-danger">
+              {{user_form.password2.errors}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row mt-3">
+          <div class="form-group col-12">
+            <input type="submit" class="form-control btn btn-info" value="Registrar-se" />
+          </div>
+        </div>
+
+        <span class="text-danger">
+          {{user_form.non_field_errors}}
+          {{profile_form.non_field_errors}}
+        </span>
+
+      </div>
+    </div>
+  </form>
+  
+{% endblock %}

@@ -1,10 +1,8 @@
 {% load static %}
-{% load pwa %}
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    {% progressive_web_app_meta %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -14,7 +12,6 @@
       integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
       crossorigin="anonymous"
     />
-  
     <link
       href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css"
       rel="stylesheet"
@@ -29,10 +26,6 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
     />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       crossorigin="anonymous"
@@ -41,18 +34,6 @@
     <title>Invest Balance</title>
   </head>
   <body>
-
-  <style>
-    .bg-danger{
-      background-color: #edc2c2 !important;
-    }
-
-    .bg-success{
-      background-color: #d9edc2 !important;
-    }
-
-  </style>
-
     {% block site %}{% endblock %}
   </body>
 

@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from investments.forms import UserLoginForm, AssetForm, CategoryForm, AssetPurchaseForm, TransferForm, SavingForm
 from datetime import datetime
 from django.contrib.auth.models import User
+import csv
+import time
 
 
 class SavingAsAsset():
@@ -87,6 +89,40 @@ def get_stock_price(request, code):
     price = price * usd_value
 
   return JsonResponse({"code": code, "price": "%.2f"%price})
+
+def charts(request, code):
+  return render(request, 'Charts/stock.html', {"code": code})
+
+def get_stock_historical_price(request, code):
+  response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=1578928664&period2=%s&interval=1mo&events=history&includeAdjustedClose=true"%(code, int(time.time())))
+
+  prices = [{"date": datetime.strptime(x[0], "%Y-%m-%d"), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+
+  return JsonResponse({"code": code, "prices": prices})
+
+def get_stock_dividends(request, code):
+
+  asset_purchases = AssetPurchase.objects.filter(asset__code=code)
+
+  print(list(asset_purchases))
+
+  response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=1578928664&period2=%s&interval=1d&events=div&includeAdjustedClose=true"%(code, int(time.time())))
+
+  dividends = [{"date": datetime.strptime(x[0], "%Y-%m-%d"), "value": x[1]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+
+  dividends.sort(key=lambda x: x["date"])
+
+  dividends_sum = 0
+
+  for dividend in dividends:
+    sum_stocks = 0
+    for purchase in list(asset_purchases):
+      if(purchase.date < dividend["date"].date()):
+        sum_stocks += purchase.amount
+    dividends_sum += sum_stocks * float(dividend["value"])
+
+  return JsonResponse({"code": code, "dividends": dividends, "sum": dividends_sum})
+
 
 def make_investment(request):
   if(request.user.is_anonymous):

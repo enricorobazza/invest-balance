@@ -1,0 +1,75 @@
+{% extends 'login_main.html' %} {% load static %}
+
+{% block header %}
+<style>
+  .form-signin {
+    width: 100%;
+    padding: 15px;
+    margin: 0 auto;
+  }
+  .form-signin .checkbox {
+    font-weight: 400;
+  }
+  .form-signin .form-control {
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+  }
+  .form-signin .form-control:focus {
+    z-index: 2;
+  }
+  .form-signin input[type='email'] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  .form-signin input[type='password'] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+    <form method="post" class="form-signin">
+      {% csrf_token %}
+      <img
+        class="mb-4"
+        src="{% static '/images/logo.svg' %}"
+        alt=""
+        width="72"
+        height="72"
+      />
+      <h1 class="h3 mb-3 font-weight-normal">Invest Balance</h1>
+      {{form.email.errors}}
+      <label for="inputEmail" class="sr-only">E-mail</label>
+      {{ form.email }} {{form.password.errors}}
+      <label for="inputPassword" class="sr-only">Senha</label>
+      {{ form.password }}
+      <!-- <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" value="remember-me" /> Lembrar-me
+        </label>
+      </div> -->
+      <span class="text-danger">
+        {{form.non_field_errors}}
+        {% if errors %}
+          {{errors}}
+        {% endif %}
+      </span>
+      <button class="btn btn-lg btn-info btn-block mt-3" type="submit">
+        Entrar
+      </button>
+      <div class="mt-3">
+        <a href="{% url 'password_reset' %}">Esqueci minha senha</a>
+      </div>
+      <div class="mt-3">
+        <a href="{% url 'signup' %}">Registrar</a>
+      </div
+      <p class="mt-5 mb-3 text-muted">&copy; Invest Balance 2020</p>
+    </form>
+{% endblock %}
