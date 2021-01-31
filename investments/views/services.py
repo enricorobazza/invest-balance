@@ -40,8 +40,6 @@ class ServiceViews():
       response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
       data = json.load(response)
 
-      print(data.get("finance").get("result"))
-
       meta = data.get("chart").get("result")[0].get("meta")
       price = meta.get("regularMarketPrice")
       currency = meta.get("currency")
