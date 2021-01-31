@@ -45,9 +45,7 @@ class ServiceViews():
       currency = meta.get("currency")
 
       if(str(currency) == "USD"):
-        c = CurrencyRates()
-        usd_value = c.convert('USD', 'BRL', 1)
-        price = price * usd_value
+        is_dollar = True
     except:
       timestamp_beginning = time.mktime((date.today()-timedelta(days=10)).timetuple())
 
@@ -59,6 +57,14 @@ class ServiceViews():
         price = 0
       else:
         price = float(prices[-1]["value"])
+
+      if(code[-1] == "A" and code[-2] == "S" and code[-3] == "."):
+        is_dollar = True
+
+    if(is_dollar):
+      c = CurrencyRates()
+      usd_value = c.convert('USD', 'BRL', 1)
+      price = price * usd_value
 
     return JsonResponse({"code": code, "price": "%.2f"%price})
 
