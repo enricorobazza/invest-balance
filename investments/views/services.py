@@ -3,7 +3,7 @@ from ..models import AssetPurchase
 import json
 import urllib.request
 from forex_python.converter import CurrencyRates
-from datetime import datetime
+from datetime import datetime, timedelta, date
 import csv
 import time
 
@@ -22,19 +22,45 @@ class ServiceViews():
         return JsonResponse(opcao, safe=False)
     return JsonResponse(data)
 
+  # def get_last_available_stock_price(code):
+  #   timestamp_beginning = time.mktime((date.today()-timedelta(days=10)).timetuple())
+
+  #   response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1d&events=history&includeAdjustedClose=true"%(code, int(timestamp_beginning), int(time.time())))
+
+  #   prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+
+  #   if(len(prices) == 0):
+  #     return 9
+
+  #   return float(prices[-1]["value"])
 
   # if error: get last available stock price
   def get_stock_price(request, code):
-    response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
-    data = json.load(response)
-    meta = data.get("chart").get("result")[0].get("meta")
-    price = meta.get("regularMarketPrice")
-    currency = meta.get("currency")
+    try:
+      response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
+      data = json.load(response)
 
-    if(str(currency) == "USD"):
-      c = CurrencyRates()
-      usd_value = c.convert('USD', 'BRL', 1)
-      price = price * usd_value
+      print(data.get("finance").get("result"))
+
+      meta = data.get("chart").get("result")[0].get("meta")
+      price = meta.get("regularMarketPrice")
+      currency = meta.get("currency")
+
+      if(str(currency) == "USD"):
+        c = CurrencyRates()
+        usd_value = c.convert('USD', 'BRL', 1)
+        price = price * usd_value
+    except:
+      timestamp_beginning = time.mktime((date.today()-timedelta(days=10)).timetuple())
+
+      response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1d&events=history&includeAdjustedClose=true"%(code, int(timestamp_beginning), int(time.time())))
+
+      prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+
+      if(len(prices) == 0):
+        price = 0
+      else:
+        price = float(prices[-1]["value"])
 
     return JsonResponse({"code": code, "price": "%.2f"%price})
 
@@ -45,7 +71,6 @@ class ServiceViews():
 
     return JsonResponse({"code": code, "prices": prices})
 
-  
 
   def get_stock_dividends(request, code):
 

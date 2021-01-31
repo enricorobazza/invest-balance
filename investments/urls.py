@@ -12,7 +12,6 @@ urlpatterns = [
     re_path(r'^stock/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_price, name='get_stock_price'),
     re_path(r'^dividends/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_dividends, name='get_stock_dividends'),
     re_path(r'^history/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_historical_price, name='get_stock_historical_price'),
-    re_path(r'^history_value/(?P<first_date>\d{4}-\d{2}-\d{2})/(?P<code>[-\w.]+)/?$', EvolutionViews.get_stock_historical_yield, name='get_stock_historical_yield'),
     re_path(r'^option/(?P<code>[-\w.]+)/(?P<option>[-\w.]+)/?$', ServiceViews.get_options_price, name='get_options_price'),
     path('dollarquote', ServiceViews.get_dollar_quote, name="get_dollar_quote"),
     path('invest', InvestViews.make_investment, name="invest"),

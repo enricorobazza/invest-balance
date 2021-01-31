@@ -7,12 +7,14 @@ const plotChart = (result) => {
     }),
     datasets: [
         {
-            data: result.map(month => ({t: new Date(month.date), y: month.total_value})),
-            label: "Total Value"
+            data: result.map(month => ({t: new Date(month.date), y: month.total_value.toFixed(2)})),
+            label: "Total Value",
+            backgroundColor: "rgba(100, 153, 202, 0.4)"
         },
         {
-            data: result.map(month => ({t: new Date(month.date), y: month.invested_value})),
-            label: "Invested Value"
+            data: result.map(month => ({t: new Date(month.date), y: month.invested_value.toFixed(2)})),
+            label: "Invested Value",
+            backgroundColor: "rgba(97, 216, 88, 0.4)"
         },
 
     ]
