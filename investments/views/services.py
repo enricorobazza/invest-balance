@@ -36,6 +36,7 @@ class ServiceViews():
 
   # if error: get last available stock price
   def get_stock_price(request, code):
+    is_dollar = False
     try:
       response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
       data = json.load(response)
@@ -58,7 +59,7 @@ class ServiceViews():
       else:
         price = float(prices[-1]["value"])
 
-      if(len(code) < 3 or code[-1] != "A" or code[-2] != "S" or code[-3] == "."):
+      if(len(code) < 3 or code[-1] != "A" or code[-2] != "S" or code[-3] != "."):
         is_dollar = True
 
     if(is_dollar):
