@@ -11,10 +11,14 @@ $('tbody tr[key="category"]').each(async (index, elem) => {
       url: `/stock/${asset.code}`,
     }));
   });
-  const response = await Promise.all(promises);
+  const response = await Promise.all(promises.map(p => p.catch(error => {
+    console.log(error);
+    $("#errorContainer").append(`${error.responseText.split('Internal')[0]}<br />`);
+  })));
   let current_value = 0;
   response.forEach(asset => {
-    current_value += asset.price * category.assets.filter(a => a.code == asset.code)[0].amount;
+    if(asset != null)
+      current_value += asset.price * category.assets.filter(a => a.code == asset.code)[0].amount;
   })
   categories = categories.map((category) => {
     if(category.pk === pk){

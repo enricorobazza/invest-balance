@@ -1,0 +1,19 @@
+{% extends '../main.html' %}
+{% load static %}
+{% block content %}
+
+{% csrf_token %} 
+
+<script type='text/javascript'>
+  let _assets = JSON.parse("{{assets|safe}}".replace(/'/g, '"'));
+</script>
+
+<div class="row m-3">
+  <div id="chartContainer">
+    <canvas id="evolutionChart" width="600" height="600"></canvas>
+  </div>
+</div>
+
+<script src="{% static '/js/evolution.js' %}"></script>
+
+{% endblock %}

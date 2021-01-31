@@ -42,6 +42,7 @@ $(document).ready(() => {
   $.ajax({
     url: `/history/${code}`,
     success: (result) => {
+      console.log(result);
       plotChart(result);
     },
   });
