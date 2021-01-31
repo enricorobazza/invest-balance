@@ -58,7 +58,7 @@ class ServiceViews():
       else:
         price = float(prices[-1]["value"])
 
-      if(code[-1] == "A" and code[-2] == "S" and code[-3] == "."):
+      if(len(code) < 3 or code[-1] != "A" or code[-2] != "S" or code[-3] == "."):
         is_dollar = True
 
     if(is_dollar):
