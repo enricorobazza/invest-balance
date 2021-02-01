@@ -38,7 +38,7 @@ class EvolutionViews():
       accumulated_spend = Window(
         expression=Sum('amount'),
         order_by=[ExtractYear('date').asc(),ExtractMonth('date').asc()]
-      )
+      ),
     ).order_by('year', 'month').distinct('year', 'month').values('date', 'year', 'month', 'accumulated_amount', 'accumulated_spend')
 
     for asset in assets:
