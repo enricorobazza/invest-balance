@@ -30,6 +30,12 @@ class EvolutionViews():
 
     usd_prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
 
+    last_usd_price = "null"
+    index = -1
+    while(last_usd_price == "null" and index * -1 < len(usd_prices)):
+      last_usd_price = usd_prices[index]["value"]
+      index -= 1
+
     savings = Saving.objects.filter(user=user).values(year = ExtractYear('date'), month=ExtractMonth('date')).annotate(
       accumulated_amount = Window(
         expression=Sum('final_amount'),
@@ -39,7 +45,7 @@ class EvolutionViews():
         expression=Sum('amount'),
         order_by=[ExtractYear('date').asc(),ExtractMonth('date').asc()]
       ),
-    ).order_by('year', 'month').distinct('year', 'month').values('date', 'year', 'month', 'accumulated_amount', 'accumulated_spend')
+    ).order_by('year', 'month').distinct('year', 'month').values('date', 'year', 'month', 'accumulated_amount', 'accumulated_spend', 'final_amount', 'amount')
 
     for asset in assets:
       asset_purchases = AssetPurchase.objects.filter(asset__code=asset["code"], asset__user=user).values(year= ExtractYear('date') ,month=ExtractMonth('date')).annotate(
@@ -51,8 +57,13 @@ class EvolutionViews():
           expression=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value')),
           order_by=[ExtractYear('date').asc(),ExtractMonth('date').asc()]
         ),
+        spend=Window(
+          partition_by = [ExtractYear('date'), ExtractMonth('date')],
+          expression=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value')),
+          order_by=[ExtractYear('date').asc(),ExtractMonth('date').asc()]
+        ),
         currency=F('asset__stock_exchange__currency__code')
-      ).order_by('year', 'month').distinct('year', 'month').values('date', 'year', 'month', 'accumulated_amount', 'accumulated_spend', 'currency')
+      ).order_by('year', 'month').distinct('year', 'month').values('date', 'year', 'month', 'accumulated_amount', 'accumulated_spend', 'currency', 'amount', 'spend')
 
       if(len(asset_purchases) == 0):
         asset.prices = []
@@ -61,6 +72,12 @@ class EvolutionViews():
       response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1mo&events=history&includeAdjustedClose=true"%(asset["code"], int(timestamp_beginning), int(time.time())))
 
       month_prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+
+      last_price = "null"
+      index = -1
+      while(last_price == "null" and index * -1 < len(month_prices)):
+        last_price = month_prices[index]["value"]
+        index -= 1
 
       index_month = 0
 
@@ -74,31 +91,42 @@ class EvolutionViews():
           if(index_month == 0):
             month_price["total_value"] = 0
             month_price["invested_value"] = 0
+            month_price["value"] = 0
+            month_price["invested"] = 0
             currency = ""
           else:
             month_price["total_value"] = asset_purchases[index_month-1]["accumulated_amount"] * float(month_price["value"])
             month_price["invested_value"] = asset_purchases[index_month-1]["accumulated_spend"]
+            month_price["value"] = asset_purchases[index_month-1]["amount"] * float(last_price)
+            month_price["invested"] = asset_purchases[index_month-1]["spend"]
             currency = asset_purchases[index_month-1]["currency"]
         else:
           month_price["total_value"] = asset_purchases[index_month]["accumulated_amount"] * month_price["value"]
           month_price["invested_value"] = asset_purchases[index_month]["accumulated_spend"]
+          month_price["value"] = asset_purchases[index_month]["amount"] * float(last_price)
+          month_price["invested"] = asset_purchases[index_month]["spend"]
           currency = asset_purchases[index_month]["currency"]
           index_month+=1
         
         if(currency == "USD"):
           usd_value = float(usd_prices[index_month]["value"])
           month_price["total_value"] *= usd_value
+          month_price["invested"] *= usd_value
+          month_price["value"] *= float(last_usd_price)
 
       asset["prices"] = month_prices  
 
     months = []
     for i in range(len(assets[0]["prices"])):
       date = assets[0]["prices"][i]["date"]
-      # date = str(date.year) + "-" + str(date.month) + "-" + str(date.day)
-      month = {"date": date, "total_value": 0, "invested_value": 0}
+      month = {"date": date, "total_value": 0, "invested_value": 0, "invested": 0, "value": 0}
       for j in range(len(assets)):
+        if(i >= len(assets[j]["prices"])):
+          break
         month["total_value"] += assets[j]["prices"][i]["total_value"]
         month["invested_value"] += assets[j]["prices"][i]["invested_value"]
+        month["invested"] += assets[j]["prices"][i]["invested"]
+        month["value"] += assets[j]["prices"][i]["value"]
       months.append(month)
 
     index_saving = 0
@@ -108,11 +136,16 @@ class EvolutionViews():
         if(index_saving > 0):
           month["total_value"] += savings[index_saving-1]["accumulated_amount"]
           month["invested_value"] += savings[index_saving-1]["accumulated_spend"]
+          month["invested"] += savings[index_saving-1]["amount"]
+          month["value"] += savings[index_saving-1]["final_amount"]
       else:
         month["total_value"] += savings[index_saving]["accumulated_amount"]
         month["invested_value"] += savings[index_saving]["accumulated_spend"]
+        month["invested"] += savings[index_saving]["amount"]
+        month["value"] += savings[index_saving]["final_amount"]
         index_saving += 1
       date = month["date"]
       month["date"] = str(date.year) + "-" + str(date.month) + "-" + str(date.day)
     
+    print(months)
     return render(request, 'Charts/evolution.html', {'assets': months })

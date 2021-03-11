@@ -59,6 +59,7 @@ class Asset(models.Model):
   code = models.CharField(max_length=20)
   user = models.ForeignKey(User, related_name="asset_user", on_delete=models.CASCADE)
   score = models.FloatField()
+  can_invest = models.BooleanField(default=True)
   fractioned = models.BooleanField(verbose_name="Can be fractioned?", default=False, choices=BOOL_CHOICES)
 
   def __str__(self):
