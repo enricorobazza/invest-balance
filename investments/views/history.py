@@ -14,7 +14,7 @@ class HistoryViews():
       user = request.user
       # return redirect('/login')
 
-    purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=(F('value')+F('taxes_value')/F('amount'))*F('transfer__value')/F('transfer__final_value'), total_value=(F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), code=F("asset__code"), short_code=F("asset__short_code")).filter(asset__user = user).order_by('-date')
+    purchases = AssetPurchase.objects.values("asset", "date", "amount", paid_value=(F('value')+F('taxes_value')/F('amount'))*F('transfer__value')/F('transfer__final_value'), total_value=(F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), code=F("asset__code"), invest_type=F("asset__invest_type"), short_code=F("asset__short_code")).filter(asset__user = user).order_by('-date')
 
     return render(request, 'History/history.html', {'purchases': purchases})
 

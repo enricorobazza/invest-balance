@@ -54,6 +54,9 @@
           <th scope="col">Tenho</th>
           <th scope="col">Tenho (R$)</th>
           <th scope="col">% Tenho</th>
+          <th scope="col">Pode investir?</th>
+          <th scope="col">% Ideal (NEW)</th>
+          <th scope="col">% Ideal (OLD)</th>
           <th scope="col">% Ideal</th>
           <th scope="col" class="real"><button class="btn btn-dark m-0 py-0" id="btnToInvestReal">A investir (R$)</button></th>
           <th scope="col" class="dollar"><button class="btn btn-dark m-0 py-0" id="btnToInvestDollar">A investir ($)</button></th>
@@ -65,14 +68,25 @@
         <tr key="asset">
           <td style="display:none" key="code" class="align-middle">{{asset.code}}</td>
           <td style="display:none" key="fractioned" class="align-middle">{{asset.fractioned}}</td>
+          <td style="display:none" key="can_invest" class="align-middle">{{asset.can_invest}}</td>
+          <td style="display:none" key="invest_type" class="align-middle">{{asset.invest_type}}</td>
           <td key="short_code" class="align-middle">{{asset.short_code}}</td>
           <td key="category" class="align-middle">{{asset.category}}</td>
           <td key="score" class="align-middle">{{asset.score}}</td>
           <td key="price" class="align-middle">...</td>
-          <td key="count" class="align-middle">{{asset.count}}</td>
+          <td key="count" class="align-middle">{{asset.count|floatformat:3}}</td>
           <td key="have" class="align-middle">...</td>
           <td key="have_percentage" class="align-middle">...</td>
-          <td key="ideal_percentage" class="align-middle">{{asset.ideal_percentage}}</td>
+          <td key="can_invest_text" class="align-middle">
+            {% if asset.can_invest %}
+              Sim
+            {% else %}
+              Não
+            {% endif %}
+          </td>
+          <td key="new_ideal_percentage" class="align-middle">{{asset.new_ideal_percentage}}</td>
+          <td key="old_ideal_percentage" class="align-middle">{{asset.old_ideal_percentage}}</td>
+          <td key="ideal_percentage" class="align-middle">{{asset.old_ideal_percentage}}</td>
           <td key="to_invest" class="align-middle real">...</td>
           <td key="to_invest_dollar" class="align-middle dollar">...</td>
           <td key="to_invest_count" class="align-middle">...</td>
@@ -91,6 +105,9 @@
           <td key="count" class="align-middle"> - </td>
           <td key="have" class="align-middle">{{saving_category.final_amount|floatformat:2}}</td>
           <td key="have_percentage" class="align-middle">...</td>
+          <td key="can_invest_text" class="align-middle">Sim</td>
+          <td key="new_ideal_percentage" class="align-middle">{{saving_category.ideal_percentage|floatformat:2}}</td>
+          <td key="old_ideal_percentage" class="align-middle">{{saving_category.ideal_percentage|floatformat:2}}</td>
           <td key="ideal_percentage" class="align-middle">{{saving_category.ideal_percentage|floatformat:2}}</td>
           <td key="to_invest" class="align-middle real">...</td>
           <td key="to_invest_dollar" class="align-middle dollar">...</td>

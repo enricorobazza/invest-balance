@@ -25,6 +25,7 @@
         {% for purchase in purchases %}
         <tr>
           <td style="display:none" key="code">{{purchase.code}}</td>
+          <td style="display:none" key="invest_type" class="align-middle">{{purchase.invest_type}}</td>
           <td key="short_code" class="align-middle">{{purchase.short_code}}</td>
           <td key="date" class="align-middle">{{purchase.date|date:'d/m/Y'}}</td>
           <td key="paid_value" class="align-middle">{{purchase.paid_value|floatformat:2}}</td>

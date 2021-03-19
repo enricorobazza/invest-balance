@@ -51,6 +51,7 @@ class Transfer(models.Model):
 
 class Asset(models.Model):
   BOOL_CHOICES = ((True, 'Sim'), (False, 'Não'))
+  TYPE_CHOICES = (('S', 'Ação'), ('F', 'Fundo'))
 
   stock_exchange =  models.ForeignKey(StockExchange, related_name="asset_stock_exchange", on_delete=models.PROTECT)
   category = models.ForeignKey(Category, related_name="asset_category", on_delete=models.PROTECT)
@@ -59,8 +60,9 @@ class Asset(models.Model):
   code = models.CharField(max_length=20)
   user = models.ForeignKey(User, related_name="asset_user", on_delete=models.CASCADE)
   score = models.FloatField()
-  can_invest = models.BooleanField(default=True)
+  can_invest = models.BooleanField(verbose_name="Can be Invested?", default=True, choices=BOOL_CHOICES)
   fractioned = models.BooleanField(verbose_name="Can be fractioned?", default=False, choices=BOOL_CHOICES)
+  invest_type = models.CharField(max_length=1, verbose_name="Tipo de Investimento", default='S', choices=TYPE_CHOICES)
 
   def __str__(self):
     return self.short_code

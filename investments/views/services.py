@@ -6,6 +6,12 @@ from forex_python.converter import CurrencyRates
 from datetime import datetime, timedelta, date
 import csv
 import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class ServiceViews():
   def get_dollar_quote(request):
@@ -22,17 +28,20 @@ class ServiceViews():
         return JsonResponse(opcao, safe=False)
     return JsonResponse(data)
 
-  # def get_last_available_stock_price(code):
-  #   timestamp_beginning = time.mktime((date.today()-timedelta(days=10)).timetuple())
+  def get_fund_price(request, code):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
 
-  #   response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1d&events=history&includeAdjustedClose=true"%(code, int(timestamp_beginning), int(time.time())))
+    url = "https://data.anbima.com.br/fundos/%s"%code
+    browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+    browser.get(url)
+    wait = WebDriverWait(browser, 10)
+    value = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#output__container--valorDaCota .anbima-ui-output__value > span'))).get_attribute("innerHTML")
 
-  #   prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+    value = float(value[:value.index("<span")].replace("R$&nbsp;", "").replace(",", "."))
 
-  #   if(len(prices) == 0):
-  #     return 9
-
-  #   return float(prices[-1]["value"])
+    return JsonResponse({"code": code, "price": "%.2f"%value}, safe=False)
+    
 
   # if error: get last available stock price
   def get_stock_price(request, code):

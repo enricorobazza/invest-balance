@@ -7,8 +7,9 @@ $('tbody tr[key="category"]').each(async (index, elem) => {
   let category = categories.filter(c => c.pk === pk)[0];
   let promises = [];
   category.assets.forEach(async asset => {
+    const url = asset.invest_type === 'S' ? 'stock' : 'fund';
     promises.push($.ajax({
-      url: `/stock/${asset.code}`,
+      url: `/${url}/${asset.code}`,
     }));
   });
   const response = await Promise.all(promises.map(p => p.catch(error => {

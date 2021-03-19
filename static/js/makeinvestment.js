@@ -42,25 +42,55 @@ function sortTable() {
   }
 }
 
-const updatePercentages = (patrimony) => {
+const updatePercentages = (patrimony, simulated_patrimony = 0) => {
   $('tbody tr[key="asset"]').each((index, elem) => {
     const _price = parseFloat($($(elem).find('td[key="price"]')[0]).html());
     const _have = parseFloat($($(elem).find('td[key="have"]')[0]).html());
+    const _canInvest = $($(elem).find('td[key="can_invest"]')[0]).html() === "True";
+    console.log(_canInvest);
     const have_percentage = patrimony > 0 ? (_have / patrimony) * 100 : 0;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
       have_percentage.toFixed(2)
     );
-    const ideal_percentage = parseFloat(
-      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
+    old_ideal_percentage = parseFloat(
+      $($(elem).find('td[key="old_ideal_percentage"]')[0]).html()
     );
+    new_ideal_percentage = parseFloat(
+      $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
+    );
+
+
+    let ideal_percentage;
+    if(!_canInvest){
+      ideal_percentage = 0;
+      // ideal_percentage = _have * _price / patrimony;
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html(have_percentage.toFixed(2));
+      // ideal_percentage = parseFloat(
+      //   $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
+      // );
+    }
+    else {
+      ideal_percentage = (old_ideal_percentage * patrimony + new_ideal_percentage + simulated_patrimony)/(patrimony + simulated_patrimony);
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html(ideal_percentage.toFixed(2));
+      // ideal_percentage = parseFloat(
+      //   $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
+      // );
+      // ideal_percentage = (_have * _price + ideal_percentage / 100 * simulated_patrimony) / (patrimony + simulated_patrimony) * 100;
+      // ideal_percentage = _have * _price / patrimony + ideal_percentage / 100 * simulated_patrimony;
+    }
     $(elem).removeClass('bg-danger');
     $(elem).removeClass('bg-success');
 
-    if (have_percentage > ideal_percentage) $(elem).addClass('bg-danger');
+    if (have_percentage >= ideal_percentage) $(elem).addClass('bg-danger');
     else $(elem).addClass('bg-success');
+    
+    let to_invest = 0;
+    let to_invest_count = 0;
 
-    const to_invest = (ideal_percentage / 100) * patrimony - _have;
-    const to_invest_count = to_invest / _price;
+    if(_canInvest) {
+      to_invest = (ideal_percentage / 100) * patrimony - _have;
+      to_invest_count = to_invest / _price;
+    }
 
     $($(elem).find('td[key="to_invest"]')[0]).html(to_invest.toFixed(2));
     $($(elem).find('td[key="to_invest_count"]')[0]).html(
@@ -74,7 +104,7 @@ const updatePercentages = (patrimony) => {
       $($(elem).find('td[key="have"]')[0]).html()
     );
     const ideal_save_percentage = parseFloat(
-      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
+      $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
     );
     const saved_percentage = (have_saved / patrimony) * 100;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
@@ -99,8 +129,10 @@ const getPrices = () => {
   global_patrimony = initial_patrimony;
   $('tbody tr[key="asset"]').each((index, elem) => {
     let code = $($(elem).find('td[key="code"]')[0]).html();
+    let invest_type = $($(elem).find('td[key="invest_type"]')[0]).html();
+    const url = invest_type === 'S' ? 'stock' : 'fund';
     $.ajax({
-      url: `/stock/${code}`,
+      url: `/${url}/${code}`,
       success: (result) => {
         promise_count++;
         $($(elem).find('td[key="price"]')[0]).html(result.price);
@@ -136,7 +168,8 @@ $("#simulate_investment").on('submit', (e) => {
   simulated_investment = parseFloat($("#simulated_investment").val())
   if(isNaN(simulated_investment)) simulated_investment = 0;
   new_patrimony = global_patrimony + simulated_investment;
-  updatePercentages(new_patrimony);
+  // updatePercentages(new_patrimony, true);
+  updatePercentages(global_patrimony, simulated_investment);
   $(".btnOpen").css("display", "inline-block");
   closeStepByStep();
 })

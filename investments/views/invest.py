@@ -17,15 +17,24 @@ class InvestViews():
 
     saving_categories = Saving.objects.values('category', title=F('category__title') ,weight=F('category__weight')).filter(user=user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
 
-    score_sum_by_category = {}
+    old_score_sum_by_category = {}
+    new_score_sum_by_category = {}
 
     for asset in assets:
       asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(count=Sum(F('amount'), output_field=FloatField()))
 
-      if(asset.category.pk not in score_sum_by_category):
-        score_sum_by_category[asset.category.pk] = asset.score
+      # OLD PERCENTAGES
+      if(asset.category.pk not in old_score_sum_by_category):
+        old_score_sum_by_category[asset.category.pk] = asset.score
       else:
-        score_sum_by_category[asset.category.pk] += asset.score
+        old_score_sum_by_category[asset.category.pk] += asset.score
+
+      # NEW PERCENTAGES
+      if(asset.can_invest):
+        if(asset.category.pk not in new_score_sum_by_category):
+          new_score_sum_by_category[asset.category.pk] = asset.score
+        else:
+          new_score_sum_by_category[asset.category.pk] += asset.score
 
       if(asset_purchases['count']):
         asset.count = asset_purchases['count']
@@ -34,8 +43,15 @@ class InvestViews():
     
     for asset in assets:
       category_weight = asset.category.weight / categories["weight_sum"]
-      ideal_percentage = asset.score / score_sum_by_category[asset.category.pk] * category_weight * 100
-      asset.ideal_percentage = "%.2f" % ideal_percentage  
+      if(asset.can_invest):
+        new_ideal_percentage = asset.score / new_score_sum_by_category[asset.category.pk] * category_weight * 100
+        old_ideal_percentage = asset.score / old_score_sum_by_category[asset.category.pk] * category_weight * 100
+      else:
+        new_ideal_percentage = 0
+        old_ideal_percentage = asset.score / old_score_sum_by_category[asset.category.pk] * category_weight * 100
+
+      asset.new_ideal_percentage = "%.2f" % new_ideal_percentage  
+      asset.old_ideal_percentage = "%.2f" % old_ideal_percentage  
 
     initial_patrimony = 0
 

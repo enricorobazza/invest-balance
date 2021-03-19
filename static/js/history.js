@@ -1,7 +1,10 @@
 $('tbody tr').each((index, elem) => {
   let code = $($(elem).find('td[key="code"]')[0]).html();
+  let invest_type = $($(elem).find('td[key="invest_type"]')[0]).html();
+  const url = invest_type === 'S' ? 'stock' : 'fund';
+  
   $.ajax({
-    url: `/stock/${code}`,
+      url: `/${url}/${code}`,
     success: (result) => {
       $($(elem).find('td[key="current_value"]')[0]).html(result.price);
       const paid_value = parseFloat($($(elem).find('td[key="paid_value"]')[0]).html());
