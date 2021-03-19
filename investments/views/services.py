@@ -42,12 +42,6 @@ class ServiceViews():
       browser= webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     else:
       browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
-
-    # try:
-    # except:
-    #   chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    #   browser= webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-    # finally:
       
     browser.get(url)
     wait = WebDriverWait(browser, 10)
