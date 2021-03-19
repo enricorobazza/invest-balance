@@ -36,11 +36,19 @@ class ServiceViews():
     chrome_options.add_argument("--no-sandbox")
 
     url = "https://data.anbima.com.br/fundos/%s"%code
-    try:
-      browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
-    except:
+
+    if "GOOGLE_CHROME_BIN" in os.environ:
       chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
       browser= webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+    else:
+      browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+
+    # try:
+    # except:
+    #   chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    #   browser= webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+    # finally:
+      
     browser.get(url)
     wait = WebDriverWait(browser, 10)
     value = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#output__container--valorDaCota .anbima-ui-output__value > span'))).get_attribute("innerHTML")
