@@ -12,6 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
 
 class ServiceViews():
   def get_dollar_quote(request):
@@ -31,9 +32,15 @@ class ServiceViews():
   def get_fund_price(request, code):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
 
     url = "https://data.anbima.com.br/fundos/%s"%code
-    browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+    try:
+      browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+    except:
+      chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+      browser= webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     browser.get(url)
     wait = WebDriverWait(browser, 10)
     value = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#output__container--valorDaCota .anbima-ui-output__value > span'))).get_attribute("innerHTML")
