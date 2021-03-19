@@ -17,24 +17,16 @@ class InvestViews():
 
     saving_categories = Saving.objects.values('category', title=F('category__title') ,weight=F('category__weight')).filter(user=user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
 
-    old_score_sum_by_category = {}
-    new_score_sum_by_category = {}
+    score_sum_by_category = {}
 
     for asset in assets:
       asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(count=Sum(F('amount'), output_field=FloatField()))
 
-      # OLD PERCENTAGES
-      if(asset.category.pk not in old_score_sum_by_category):
-        old_score_sum_by_category[asset.category.pk] = asset.score
-      else:
-        old_score_sum_by_category[asset.category.pk] += asset.score
-
-      # NEW PERCENTAGES
       if(asset.can_invest):
-        if(asset.category.pk not in new_score_sum_by_category):
-          new_score_sum_by_category[asset.category.pk] = asset.score
+        if(asset.category.pk not in score_sum_by_category):
+          score_sum_by_category[asset.category.pk] = asset.score
         else:
-          new_score_sum_by_category[asset.category.pk] += asset.score
+          score_sum_by_category[asset.category.pk] += asset.score
 
       if(asset_purchases['count']):
         asset.count = asset_purchases['count']
@@ -42,16 +34,14 @@ class InvestViews():
         asset.count = 0
     
     for asset in assets:
-      category_weight = asset.category.weight / categories["weight_sum"]
+      category_weight = asset.category.weight / categories["weight_sum"] * 100
       if(asset.can_invest):
-        new_ideal_percentage = asset.score / new_score_sum_by_category[asset.category.pk] * category_weight * 100
-        old_ideal_percentage = asset.score / old_score_sum_by_category[asset.category.pk] * category_weight * 100
+        ideal_percentage = asset.score / score_sum_by_category[asset.category.pk] * category_weight
       else:
-        new_ideal_percentage = 0
-        old_ideal_percentage = asset.score / old_score_sum_by_category[asset.category.pk] * category_weight * 100
+        ideal_percentage = 0
 
-      asset.new_ideal_percentage = "%.2f" % new_ideal_percentage  
-      asset.old_ideal_percentage = "%.2f" % old_ideal_percentage  
+      asset.category_weight = category_weight
+      asset.ideal_percentage = "%.2f" % ideal_percentage  
 
     initial_patrimony = 0
 

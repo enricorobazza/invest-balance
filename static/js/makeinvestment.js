@@ -2,6 +2,7 @@ let promise_count = 0;
 const assets_count = $('tbody tr[key="asset"]').length;
 let global_patrimony = initial_patrimony;
 let stepOpen = false;
+let global_category_sum = {};
 
 function sortTable() {
   var table, rows, switching, i, x, y, shouldSwitch;
@@ -47,36 +48,26 @@ const updatePercentages = (patrimony, simulated_patrimony = 0) => {
     const _price = parseFloat($($(elem).find('td[key="price"]')[0]).html());
     const _have = parseFloat($($(elem).find('td[key="have"]')[0]).html());
     const _canInvest = $($(elem).find('td[key="can_invest"]')[0]).html() === "True";
-    console.log(_canInvest);
-    const have_percentage = patrimony > 0 ? (_have / patrimony) * 100 : 0;
+    const _categoryWeight = parseFloat($($(elem).find('td[key="category_weight"]')[0]).html());
+    const _category = $($(elem).find('td[key="category_pk"]')[0]).html();
+    let have_percentage = patrimony > 0 ? (_have / patrimony) * 100 : 0;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
       have_percentage.toFixed(2)
     );
-    old_ideal_percentage = parseFloat(
-      $($(elem).find('td[key="old_ideal_percentage"]')[0]).html()
+    have_percentage = patrimony > 0 ? (_have/(patrimony + simulated_patrimony)) * 100 : 0;
+    let ideal_percentage = parseFloat(
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
     );
-    new_ideal_percentage = parseFloat(
-      $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
-    );
-
-
-    let ideal_percentage;
+    
     if(!_canInvest){
       ideal_percentage = 0;
-      // ideal_percentage = _have * _price / patrimony;
+      $($(elem).find('td[key="real_percentage"]')[0]).html(have_percentage.toFixed(2));
       $($(elem).find('td[key="ideal_percentage"]')[0]).html(have_percentage.toFixed(2));
-      // ideal_percentage = parseFloat(
-      //   $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
-      // );
     }
     else {
-      ideal_percentage = (old_ideal_percentage * patrimony + new_ideal_percentage + simulated_patrimony)/(patrimony + simulated_patrimony);
-      $($(elem).find('td[key="ideal_percentage"]')[0]).html(ideal_percentage.toFixed(2));
-      // ideal_percentage = parseFloat(
-      //   $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
-      // );
-      // ideal_percentage = (_have * _price + ideal_percentage / 100 * simulated_patrimony) / (patrimony + simulated_patrimony) * 100;
-      // ideal_percentage = _have * _price / patrimony + ideal_percentage / 100 * simulated_patrimony;
+      category_have_percentage = global_category_sum[_category] / (patrimony + simulated_patrimony) * 100;
+      ideal_percentage = (1 - category_have_percentage / (_categoryWeight)) * ideal_percentage + have_percentage;
+      $($(elem).find('td[key="real_percentage"]')[0]).html(ideal_percentage.toFixed(2));
     }
     $(elem).removeClass('bg-danger');
     $(elem).removeClass('bg-success');
@@ -88,7 +79,7 @@ const updatePercentages = (patrimony, simulated_patrimony = 0) => {
     let to_invest_count = 0;
 
     if(_canInvest) {
-      to_invest = (ideal_percentage / 100) * patrimony - _have;
+      to_invest = ((ideal_percentage - have_percentage) / 100) * (patrimony + simulated_patrimony);
       to_invest_count = to_invest / _price;
     }
 
@@ -104,14 +95,16 @@ const updatePercentages = (patrimony, simulated_patrimony = 0) => {
       $($(elem).find('td[key="have"]')[0]).html()
     );
     const ideal_save_percentage = parseFloat(
-      $($(elem).find('td[key="new_ideal_percentage"]')[0]).html()
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
     );
-    const saved_percentage = (have_saved / patrimony) * 100;
+    let saved_percentage = (have_saved / patrimony) * 100;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
       saved_percentage.toFixed(2)
     );
 
-    const to_save = (ideal_save_percentage / 100) * patrimony - have_saved;
+    saved_percentage = (have_saved / (patrimony + simulated_patrimony)) * 100;
+
+    const to_save = ((ideal_save_percentage - saved_percentage) / 100) * (patrimony + simulated_patrimony);
     $($(elem).find('td[key="to_invest"]')[0]).html(to_save.toFixed(2));
     
     $(elem).removeClass('bg-danger');
@@ -140,6 +133,12 @@ const getPrices = () => {
         const count = $($(elem).find('td[key="count"]')[0]).html();
         const have = price * count;
         $($(elem).find('td[key="have"]')[0]).html(have.toFixed(2));
+
+        const category = parseInt($($(elem).find('td[key="category_pk"]')[0]).html());
+
+        if(global_category_sum[category]) global_category_sum[category] += have
+        else global_category_sum[category] = have;
+
         global_patrimony += have;
 
         if (promise_count == assets_count) updatePercentages(global_patrimony);
@@ -168,7 +167,6 @@ $("#simulate_investment").on('submit', (e) => {
   simulated_investment = parseFloat($("#simulated_investment").val())
   if(isNaN(simulated_investment)) simulated_investment = 0;
   new_patrimony = global_patrimony + simulated_investment;
-  // updatePercentages(new_patrimony, true);
   updatePercentages(global_patrimony, simulated_investment);
   $(".btnOpen").css("display", "inline-block");
   closeStepByStep();
