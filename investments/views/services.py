@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from ..models import AssetPurchase
 import json
 import urllib.request
-from forex_python.converter import CurrencyRates
 from datetime import datetime, timedelta, date
 import csv
 import time
@@ -14,10 +13,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
 
+def get_dollar():
+  response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X")
+  data = json.load(response)
+  return float(data.get('chart').get('result')[0].get('meta').get('regularMarketPrice'))
+
 class ServiceViews():
   def get_dollar_quote(request):
-    c = CurrencyRates()
-    usd_value = c.convert('USD', 'BRL', 1)
+    usd_value = get_dollar()
     return JsonResponse({"quote": usd_value})
 
   def get_options_price(request, code="BOVA11", option="BOVAU985"):
@@ -58,6 +61,8 @@ class ServiceViews():
     try:
       response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code) 
       data = json.load(response)
+      
+      print("https://query1.finance.yahoo.com/v8/finance/chart/%s"%code)
 
       meta = data.get("chart").get("result")[0].get("meta")
       price = meta.get("regularMarketPrice")
@@ -70,6 +75,8 @@ class ServiceViews():
 
       response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1d&events=history&includeAdjustedClose=true"%(code, int(timestamp_beginning), int(time.time())))
 
+      print("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1d&events=history&includeAdjustedClose=true"%(code, int(timestamp_beginning), int(time.time())))
+
       prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
 
       if(len(prices) == 0):
@@ -81,8 +88,7 @@ class ServiceViews():
         is_dollar = True
 
     if(is_dollar):
-      c = CurrencyRates()
-      usd_value = c.convert('USD', 'BRL', 1)
+      usd_value = get_dollar()
       price = price * usd_value
 
     return JsonResponse({"code": code, "price": "%.2f"%price})
