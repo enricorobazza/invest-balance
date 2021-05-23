@@ -90,3 +90,15 @@ class SavingForm(forms.ModelForm):
             visible.field.widget.attrs['class'] = 'form-control'
         self.fields['date'].widget.attrs['class'] += ' datepicker'
         self.fields['category'].queryset = Category.objects.filter(user=user, type=2)
+
+
+class SplitForm(forms.Form):
+    asset = forms.ModelChoiceField(queryset = Asset.objects.all())
+    split_count = forms.IntegerField()
+
+    def __init__(self, user, *args, **kwargs):
+        super(SplitForm, self).__init__(*args, **kwargs)
+        self.fields['asset'].queryset = Asset.objects.filter(user=user)
+
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'

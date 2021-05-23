@@ -20,6 +20,7 @@ urlpatterns = [
     path('evolution', EvolutionViews.evolution_chart, name="evolution"),
     re_path(r'^charts/(?P<code>[-\w.]+)/?$', EvolutionViews.charts, name='charts'),
     path('assets/add', AssetsViews.add_asset, name="add_asset"),
+    path('assets/split', AssetsViews.split, name="split_asset"),
     path('category/add', SummaryViews.add_category, name="add_category"),
     path('transfer/add', HistoryViews.add_transfer, name="add_transfer"),
     path('saving/add', HistoryViews.add_saving, name="add_saving"),

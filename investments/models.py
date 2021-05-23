@@ -99,3 +99,6 @@ class Saving(models.Model):
 class OptionsStrategy(models.Model):
   category = models.ForeignKey(Category, related_name="options_category", on_delete=models.PROTECT)
   user = models.ForeignKey(User, related_name="options_user", on_delete=models.CASCADE)
+
+
+# class FundPriceHist(models.Model):

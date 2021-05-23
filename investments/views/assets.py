@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from ..models import Asset, AssetPurchase
 from django.db.models import Sum, F, FloatField
 from django.contrib.auth.models import User
-from investments.forms import AssetForm
+from investments.forms import AssetForm, SplitForm
 
 class AssetsViews():
   def list_assets(request):
@@ -44,3 +44,31 @@ class AssetsViews():
         return render(request, 'Assets/add_asset.html', {
             'form': form
         })
+
+  def split(request):
+    if(request.user.is_anonymous):
+      return redirect('summary')
+
+    if(request.method == "POST"):
+      form = SplitForm(request.user, request.POST)
+      if form.is_valid():
+        asset = form.cleaned_data['asset']
+        split_count = form.cleaned_data['split_count'] 
+
+        asset_purchases = AssetPurchase.objects.filter(asset = asset)
+        for purchase in asset_purchases:
+          purchase.value = purchase.value / split_count
+          purchase.amount = purchase.amount * split_count
+          purchase.save()
+
+        return redirect('split_asset')
+      else:
+        return render(request, 'Assets/split.html', {
+        'form': form
+      })
+
+    else:
+      form = SplitForm(request.user)
+      return render(request, 'Assets/split.html', {
+        'form': form
+      })

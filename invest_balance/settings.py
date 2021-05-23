@@ -140,6 +140,19 @@ PWA_APP_DEBUG_MODE = False
 
 ######
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ["REDIS_URL"],
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "invest_balance"
+    }
+}
+
+CACHE_TTL = 60 * 15
+LONG_CACHE_TTL = 60 * 60 * 24
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/

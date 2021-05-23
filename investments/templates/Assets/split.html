@@ -1,0 +1,40 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<!-- fields = ('stock_exchange', 'category', 'name', 'short_code', 'code', 'user', 'score') -->
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-12 col-md-4 offset-md-4">
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.asset.sserrors}}
+          <label for="{{form.asset.id_for_label}}">Ativo: </label>
+          {{ form.asset }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.split_count.sserrors}}
+          <label for="{{form.split_count.id_for_label}}">Quantidade: </label>
+          {{ form.split_count }}
+        </div>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Aplicar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

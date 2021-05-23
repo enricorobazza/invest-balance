@@ -1,4 +1,7 @@
 from django.http import JsonResponse
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.conf import settings
 from ..models import AssetPurchase
 import json
 import urllib.request
@@ -13,12 +16,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
 
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+LONG_CACHE_TTL = getattr(settings, 'LONG_CACHE_TTL', DEFAULT_TIMEOUT)
+
 def get_dollar():
   response = urllib.request.urlopen("https://query1.finance.yahoo.com/v8/finance/chart/USDBRL=X")
   data = json.load(response)
   return float(data.get('chart').get('result')[0].get('meta').get('regularMarketPrice'))
 
 class ServiceViews():
+
+  @cache_page(CACHE_TTL)
   def get_dollar_quote(request):
     usd_value = get_dollar()
     return JsonResponse({"quote": usd_value})
@@ -32,6 +40,7 @@ class ServiceViews():
         return JsonResponse(opcao, safe=False)
     return JsonResponse(data)
 
+  @cache_page(LONG_CACHE_TTL)
   def get_fund_price(request, code):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -56,6 +65,7 @@ class ServiceViews():
     
 
   # if error: get last available stock price
+  @cache_page(CACHE_TTL) 
   def get_stock_price(request, code):
     is_dollar = False
     try:
@@ -93,6 +103,7 @@ class ServiceViews():
 
     return JsonResponse({"code": code, "price": "%.2f"%price})
 
+  @cache_page(CACHE_TTL) 
   def get_stock_historical_price(request, code):
     response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=1578928664&period2=%s&interval=1mo&events=history&includeAdjustedClose=true"%(code, int(time.time())))
 
@@ -100,7 +111,7 @@ class ServiceViews():
 
     return JsonResponse({"code": code, "prices": prices})
 
-
+  @cache_page(CACHE_TTL) 
   def get_stock_dividends(request, code):
 
     asset_purchases = AssetPurchase.objects.filter(asset__code=code)
