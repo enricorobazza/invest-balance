@@ -11,6 +11,8 @@ urlpatterns = [
     path('', SummaryViews.summary, name="summary"),
     re_path(r'^stock/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_price, name='get_stock_price'),
     re_path(r'^fund/(?P<code>[-\w.]+)/?$', ServiceViews.get_fund_price, name='get_fund_price'),
+    path('history/add', HistoryViews.add_purchase, name="add_purchase"),
+    path('history', HistoryViews.history, name="history"),
     re_path(r'^dividends/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_dividends, name='get_stock_dividends'),
     re_path(r'^history/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_historical_price, name='get_stock_historical_price'),
     re_path(r'^option/(?P<code>[-\w.]+)/(?P<option>[-\w.]+)/?$', ServiceViews.get_options_price, name='get_options_price'),
@@ -24,8 +26,6 @@ urlpatterns = [
     path('category/add', SummaryViews.add_category, name="add_category"),
     path('transfer/add', HistoryViews.add_transfer, name="add_transfer"),
     path('saving/add', HistoryViews.add_saving, name="add_saving"),
-    path('history', HistoryViews.history, name="history"),
-    path('history/add', HistoryViews.add_purchase, name="add_purchase"),
     path('login', AuthViews.login, name="login"),
     path('logout', AuthViews.logout, name="logout"),
 ]
