@@ -48,6 +48,7 @@
           <th scope="col">Total Investido</th>
           <th scope="col">Total Atual</th>
           <th scope="col">Rendimento</th>
+          <th scope="col">Otimizar</th>
         </tr>
       </thead>
       <tbody>
@@ -58,6 +59,7 @@
           <td key="sum" class="align-middle">{{category.sum}}</td>
           <td key="current_value" class="align-middle">...</td>
           <td key="yield" class="align-middle">...</td>
+          <td key="optimize" class="align-middle"><a class="btn btn-primary" href="{% url 'risk_category' category.pk %}"><i class="fas fa-rocket"></i></a></td>
         </tr>
 
         {% endfor %}
@@ -73,6 +75,7 @@
             <td key="sum" class="align-middle">{{saving.sum|floatformat:2}}</td>
             <td key="current_value" class="align-middle">{{saving.current_value|floatformat:2}}</td>
             <td key="yield" class="align-middle">{{saving.yield}}</td>
+            <td key="optimize" class="align-middle"></td>
           </tr>
         {% endfor %}
 
@@ -81,6 +84,7 @@
           <td key="sum" class="align-middle">{{total_sum}}</td>
           <td key="current_value" class="align-middle">...</td>
           <td key="yield" class="align-middle">...</td>
+          <td key="optimize" class="align-middle"></td>
         </tr>
 
       </tbody>

@@ -4,13 +4,8 @@ from django.db.models import F, FloatField, Sum
 from django.contrib.auth.models import User
 
 class InvestViews():
-  def make_investment(request):
-    if(request.user.is_anonymous):
-      user = User.objects.get(pk=1)
-    else:
-      user = request.user
-      # return redirect('/login')
-
+  @classmethod
+  def get_ideal_percentages(cls, user):
     assets = Asset.objects.filter(user=user)
 
     categories = Category.objects.filter(user=user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
@@ -49,6 +44,19 @@ class InvestViews():
       initial_patrimony += saving_category["final_amount"]
       saving_category["ideal_percentage"] = saving_category["weight"] / categories["weight_sum"] * 100
       saving_category["fractioned"] = True
+
+    
+    return assets, saving_categories, initial_patrimony
+
+
+  def make_investment(request):
+    if(request.user.is_anonymous):
+      user = User.objects.get(pk=1)
+    else:
+      user = request.user
+      # return redirect('/login')
+
+    assets, saving_categories, initial_patrimony = InvestViews.get_ideal_percentages(user)
 
     return render(request, 'MakeInvestment/makeinvestment.html', {'assets': assets, 'savings': saving_categories, 'initial_patrimony': initial_patrimony})
 

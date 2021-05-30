@@ -1,0 +1,13 @@
+{% extends '../main.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row m-3">
+    {% if graph %}
+        {{graph|safe}}
+    {% else %}
+        Nenhum dado para essa categoria.
+    {% endif %}
+</div>
+
+{% endblock %}

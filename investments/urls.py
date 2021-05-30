@@ -6,6 +6,7 @@ from .views.services import ServiceViews
 from .views.evolution import EvolutionViews
 from .views.invest import InvestViews
 from .views.history import HistoryViews
+from .views.risk import RiskViews
 
 urlpatterns = [
     path('', SummaryViews.summary, name="summary"),
@@ -20,6 +21,8 @@ urlpatterns = [
     path('invest', InvestViews.make_investment, name="invest"),
     path('assets', AssetsViews.list_assets, name="list_assets"),
     path('evolution', EvolutionViews.evolution_chart, name="evolution"),
+    path('risk', RiskViews.efficient_frontier, name='risk'),
+    path('risk/<int:category>', RiskViews.efficient_frontier, name='risk_category'),
     re_path(r'^charts/(?P<code>[-\w.]+)/?$', EvolutionViews.charts, name='charts'),
     path('assets/add', AssetsViews.add_asset, name="add_asset"),
     path('assets/split', AssetsViews.split, name="split_asset"),
