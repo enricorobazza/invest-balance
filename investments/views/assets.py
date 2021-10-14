@@ -14,17 +14,24 @@ class AssetsViews():
       # return redirect('/login')
 
     assets = Asset.objects.filter(user=user)
+    keep_assets = []
+
     for asset in assets:
       asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(cost_sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), output_field=FloatField()), count=Sum(F('amount'), output_field=FloatField()))
 
-      if(asset_purchases['cost_sum'] and asset_purchases['count']):
+      if not asset_purchases['count']:
+        continue
+
+      if(asset_purchases['cost_sum']):
         asset.cost_avg = "%.2f" % (asset_purchases['cost_sum'] / asset_purchases['count'])
         asset.count = asset_purchases['count']
       else:
         asset.cost_avg = 0
         asset.count = 0
+
+      keep_assets.append(asset)
         
-    return render(request, 'Assets/list_assets.html', {'assets': assets})
+    return render(request, 'Assets/list_assets.html', {'assets': keep_assets})
   
   def add_asset(request):
     if request.method == 'POST':
