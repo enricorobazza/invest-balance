@@ -17,7 +17,7 @@ class AssetsViews():
     for asset in assets:
       asset_purchases = AssetPurchase.objects.filter(asset=asset).aggregate(cost_sum=Sum((F('value')*F('amount')+F('taxes_value'))*F('transfer__value')/F('transfer__final_value'), output_field=FloatField()), count=Sum(F('amount'), output_field=FloatField()))
 
-      if(asset_purchases['cost_sum']):
+      if(asset_purchases['cost_sum'] and asset_purchases['count']):
         asset.cost_avg = "%.2f" % (asset_purchases['cost_sum'] / asset_purchases['count'])
         asset.count = asset_purchases['count']
       else:
