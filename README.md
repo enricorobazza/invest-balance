@@ -2,9 +2,6 @@
 
 This is a Django Project for managing investments
 
-<h2 style="color: #32b867">Live: </h2>
-http://invest-balance.herokuapp.com/
-
 <h2 style="color: red">❌ Errors</h2>
 
 - Add to venv/bin/activate:
