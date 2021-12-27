@@ -54,7 +54,7 @@ class Asset(models.Model):
   TYPE_CHOICES = (('S', 'Ação'), ('F', 'Fundo'))
 
   stock_exchange =  models.ForeignKey(StockExchange, related_name="asset_stock_exchange", on_delete=models.PROTECT)
-  category = models.ForeignKey(Category, related_name="asset_category", on_delete=models.PROTECT)
+  category = models.ForeignKey(Category, related_name="asset_category", on_delete=models.CASCADE)
   name = models.CharField(max_length=255)
   short_code = models.CharField(max_length=15)
   code = models.CharField(max_length=20)
@@ -68,7 +68,7 @@ class Asset(models.Model):
     return self.short_code
 
 class AssetPurchase(models.Model):
-  asset = models.ForeignKey(Asset, related_name="purchased_asset", on_delete=models.PROTECT)
+  asset = models.ForeignKey(Asset, related_name="purchased_asset", on_delete=models.CASCADE)
   date = models.DateField(default=timezone.now)
   value = models.FloatField()
   amount = models.FloatField()
