@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
-from .models import Asset, Category, AssetPurchase, Transfer, Saving
+from .models import Asset, Category, AssetPurchase, Transfer, Saving, GuiaBolsoToken
+import json
 
 class UserLoginForm(forms.Form):
     username = forms.CharField()
@@ -102,3 +103,24 @@ class SplitForm(forms.Form):
 
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control'
+
+class GuiaBolsoLoginForm(forms.Form):
+    login = forms.CharField(widget=forms.Textarea)
+
+    def __init__(self, *args, **kwargs):
+        super(GuiaBolsoLoginForm, self).__init__(*args, **kwargs)
+
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+
+    def save(self, user):
+        login_data = json.loads(self.cleaned_data['login'])
+        token = login_data['token']
+
+        try:
+            guiabolso_token = GuiaBolsoToken.objects.get(user=user)
+        except GuiaBolsoToken.DoesNotExist:
+            guiabolso_token = GuiaBolsoToken(user=user)
+
+        guiabolso_token.token = token
+        guiabolso_token.save()

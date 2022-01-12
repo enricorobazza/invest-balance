@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from .views.auth import AuthViews
 from .views.assets import AssetsViews
 from .views.summary import SummaryViews
@@ -7,9 +7,25 @@ from .views.evolution import EvolutionViews
 from .views.invest import InvestViews
 from .views.history import HistoryViews
 from .views.risk import RiskViews
+from .views.guiabolso import GuiaBolsoViews
+from .api.guiabolso import GuiaBolsoTokenViewSet
+
+from rest_framework import routers
+from rest_framework_simplejwt import views as jwt_views
+
+router = routers.DefaultRouter(trailing_slash=False)
+router.register(r'guiabolso', GuiaBolsoTokenViewSet, basename="GuiaBolsoToken")
 
 urlpatterns = [
     path('', SummaryViews.summary, name="summary"),
+
+    path('api/', include(router.urls + [
+        re_path(r'^token/?$', jwt_views.TokenObtainPairView.as_view(),
+                name='token_obtain_pair'),
+        re_path(r'^token/refresh/?$',
+                jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    ])),
+
     re_path(r'^stock/(?P<code>[-\w.]+)/?$', ServiceViews.get_stock_price, name='get_stock_price'),
     re_path(r'^fund/(?P<code>[-\w.]+)/?$', ServiceViews.get_fund_price, name='get_fund_price'),
     path('history/add', HistoryViews.add_purchase, name="add_purchase"),
@@ -28,6 +44,7 @@ urlpatterns = [
     path('assets/split', AssetsViews.split, name="split_asset"),
     path('category/add', SummaryViews.add_category, name="add_category"),
     path('transfer/add', HistoryViews.add_transfer, name="add_transfer"),
+    path('guiabolso', GuiaBolsoViews.add_token, name="add_token"),
     path('saving/add', HistoryViews.add_saving, name="add_saving"),
     path('login', AuthViews.login, name="login"),
     path('logout', AuthViews.logout, name="logout"),

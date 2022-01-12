@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import constraints
 from django.utils import timezone
 
 # Create your models here.
@@ -72,7 +73,7 @@ class AssetPurchase(models.Model):
   date = models.DateField(default=timezone.now)
   value = models.FloatField()
   amount = models.FloatField()
-  transfer = models.ForeignKey(Transfer, related_name="asset_purchase_transfer", on_delete=models.PROTECT)
+  transfer = models.ForeignKey(Transfer, related_name="asset_purchase_transfer", on_delete=models.CASCADE)
   taxes_value = models.FloatField(default=0)
 
   def __str__(self):
@@ -85,12 +86,12 @@ class Bank(models.Model):
     return self.title
 
 class Saving(models.Model):
-  bank = models.ForeignKey(Bank, related_name="saving_bank", on_delete=models.PROTECT)
+  bank = models.ForeignKey(Bank, related_name="saving_bank", on_delete=models.CASCADE)
   amount = models.FloatField()
   final_amount = models.FloatField()
   date = models.DateField(default=timezone.now)
   updated = models.DateTimeField(auto_now=True)
-  category = models.ForeignKey(Category, related_name="saving_category", on_delete=models.PROTECT)
+  category = models.ForeignKey(Category, related_name="saving_category", on_delete=models.CASCADE)
   user = models.ForeignKey(User, related_name="saving_user", on_delete=models.CASCADE)
 
   def __str__(self):
@@ -99,6 +100,35 @@ class Saving(models.Model):
 class OptionsStrategy(models.Model):
   category = models.ForeignKey(Category, related_name="options_category", on_delete=models.PROTECT)
   user = models.ForeignKey(User, related_name="options_user", on_delete=models.CASCADE)
+
+class GuiaBolsoToken(models.Model):
+  user = models.ForeignKey(User, related_name="guiabolso_token_user", on_delete=models.CASCADE, unique=True)
+  token = models.TextField()
+
+  def as_json(self):
+    return {
+      "user": self.user.username,
+      "token": self.token,
+      "last_transaction": self.last_transaction_date.strftime('%Y-%m-%d')
+    }
+
+  @property
+  def last_transaction_date(self):
+    return GuiaBolsoTransaction.objects.filter(user=self.user).order_by('-date')[0].date
+
+class GuiaBolsoTransaction(models.Model):
+  user = models.ForeignKey(User, related_name="guiabolso_user", on_delete=models.CASCADE)
+  date = models.DateTimeField()
+  value = models.FloatField()
+  label = models.TextField()
+  description = models.TextField()
+  category = models.CharField(max_length=100)
+
+  @property
+  def text(self):
+    if self.description is not None and self.description != "":
+      return self.description
+    return self.label
 
 
 # class FundPriceHist(models.Model):

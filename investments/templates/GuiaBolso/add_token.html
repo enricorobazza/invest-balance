@@ -1,0 +1,36 @@
+{% extends '../main.html' %} 
+{% load static %}
+{% block content %} 
+
+<form class="p-3" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-12 col-md-4 offset-md-4">
+      1. Vá até: <a href="https://app.guiabolso.com.br/#/financas/resumo">https://app.guiabolso.com.br/#/financas/resumo</a>
+      <br/>
+      2. Abra o inspecionar elementos na aba Application > Local Storage > https://app.guiabolso.com.br
+      <br />
+      3. Vá na chave login e copie o valor
+      <br />
+      <div class="form-row">
+        <div class="form-group col-12">
+          {{form.login.errors}}
+          <label for="{{form.login.id_for_label}}">Login: </label>
+          {{ form.login }}
+        </div>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group col-4 offset-4">
+          <input
+            type="submit"
+            class="form-control btn btn-info"
+            value="Enviar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}
