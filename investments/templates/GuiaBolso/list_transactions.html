@@ -2,6 +2,8 @@
 {% load static %}
 {% block content %}
 
+{% load guiabolso_tags %}
+
 {% csrf_token %} 
 
 <div class="row m-3">
@@ -21,20 +23,25 @@
     <table id="transactions" class="table my-2 table-striped">
       <thead class="thead-dark">
         <tr>
+          <th scope="col">Categoria</th>
           <th scope="col">Data</th>
           <th scope="col">Descrição</th>
           <th scope="col">Valor (R$)</th>
-          <th scope="col">Categoria</th>
         </tr>
       </thead>
       <tbody>
         {% if transactions %}
         {% for transaction in transactions %}
-        <tr class="{% if transaction.value > 0 %} bg-success {% else %} bg-danger {% endif %}">
+        <tr>
+          <td key="categort" class="align-middle">
+            <div style="
+              background-color:#{{transaction|color:categories}};
+              color:#{{transaction|text_color:categories}};
+            " class="m-2 p-2 rounded d-inline">{{transaction|symbol:categories}} {{transaction.category}}</div>
+          </td>
           <td key="date" class="align-middle">{{transaction.date|date:'d/m/Y'}}</td>
           <td key="text" class="align-middle">{{transaction.text}}</td>
-          <td key="value" class="align-middle">{{transaction.value}}</td>
-          <td key="categort" class="align-middle">{{transaction.category}}</td>
+          <td key="value" class="align-middle {% if transaction.value > 0 %} text-success {% else %} text-danger {% endif %}">{{transaction.value}}</td>
         </tr>
 
         {% endfor %}

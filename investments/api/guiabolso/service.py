@@ -6,7 +6,7 @@ import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
 from .consts import curl_text
-from investments.models import GuiaBolsoToken, GuiaBolsoTransaction
+from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from django.utils import timezone
 
 try:
@@ -16,12 +16,15 @@ except ImportError:
 
 def merge_or_set(merged, df):
 	if merged is None:
-		merged = df
-	else:
-		merged = pd.concat([merged, df])
-	return merged
+		return df
+	if df is None or df.shape[0] == 0:
+		return merged
+	return pd.concat([merged, df])
 
 def format_df(df, categories):
+	if df.shape[0] == 0:
+		return df
+
 	for column in ['date', 'modified', 'created']:
 		df[column] = pd.to_datetime(df[column], unit='ms')
 
@@ -30,7 +33,7 @@ def format_df(df, categories):
 
 	return df.merge(categories[['categoryId', 'category']], on='categoryId', how='left')
 
-def transactions_for_month_code(token, month_code="24263"):
+def transactions_for_month_code(user, token, month_code="24263"):
 	response = subprocess.check_output(curl_text%(
 		month_code,
 		"Bearer "+token,
@@ -49,8 +52,22 @@ def transactions_for_month_code(token, month_code="24263"):
 	for categoryType in categoryTypes:
 		categories = categoryType['categories']
 		df = pd.DataFrame(categories)
-
+		df['color'] = categoryType['color']
+		df['type'] = categoryType['name']
 		categories_df = merge_or_set(categories_df, df)
+
+	categories = []
+
+	for i in range(categories_df.shape[0]):
+		row = categories_df.iloc[i]
+		category = GuiaBolsoCategory()
+		category.user = user
+		category.name = row['name']
+		category.color = row['color']
+		category.type = row['type']
+		categories.append(category)
+
+	batch_insert(categories, GuiaBolsoCategory)
 
 	merged_df = None
 
@@ -70,9 +87,10 @@ def get_code_for_month(date):
 	december_code = 24263
 	return december_code + months_diff(date, december)
 
-def get_months_for_token(token, start_month=None, end_month=datetime.datetime.now()):
+def get_months_for_token(user, token, start_month=None, end_month=datetime.datetime.now()):
 	if start_month is None:
-		start_month = datetime.datetime.now() - relativedelta(years=1)
+		# start_month = datetime.datetime.now() - relativedelta(years=1)
+		start_month = datetime.datetime.now() - relativedelta(years=2, months=6)
 
 	start_month = start_month.replace(day=1, tzinfo=None)
 
@@ -81,8 +99,8 @@ def get_months_for_token(token, start_month=None, end_month=datetime.datetime.no
 
 	while month > start_month:
 		month_code = get_code_for_month(month)
-		df = transactions_for_month_code(token, month_code)
-		if df is None:
+		df = transactions_for_month_code(user, token, month_code)
+		if df is None and merged_df is None:
 			return None, start_month
 		merged_df = merge_or_set(merged_df, df)
 
@@ -94,7 +112,7 @@ def get_months_for_token(token, start_month=None, end_month=datetime.datetime.no
 
 	return merged_df, start_month
 
-def batch_insert(objs, Model, batch_size=100):
+def batch_insert(objs, Model, batch_size=100, ignore_conflicts=True):
 	start = 0
 	while start < len(objs):
 		if start + batch_size > len(objs):
@@ -102,7 +120,7 @@ def batch_insert(objs, Model, batch_size=100):
 		else:
 			end = start + batch_size
 		batch = objs[start:end]
-		Model.objects.bulk_create(batch, batch_size)
+		Model.objects.bulk_create(batch, batch_size, ignore_conflicts=ignore_conflicts)
 		start = end
 
 def update_transactions(user):
@@ -115,7 +133,7 @@ def update_transactions(user):
 		return -1
 
 	start_month = token.last_transaction_date
-	df, start_month = get_months_for_token(token.token, start_month)
+	df, start_month = get_months_for_token(user, token.token, start_month)
 
 	if df is None:
 		token.valid = False 

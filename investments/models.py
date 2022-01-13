@@ -114,6 +114,7 @@ class GuiaBolsoToken(models.Model):
       return transactions[0].date
     return None
 
+
 class GuiaBolsoTransaction(models.Model):
   user = models.ForeignKey(User, related_name="guiabolso_user", on_delete=models.CASCADE)
   date = models.DateTimeField()
@@ -128,5 +129,14 @@ class GuiaBolsoTransaction(models.Model):
       return self.description
     return self.label
 
+class GuiaBolsoCategory(models.Model):
+  user = models.ForeignKey(User, related_name="guiabolso_category_user", on_delete=models.CASCADE) 
+  name = models.CharField(max_length=100)
+  type = models.CharField(max_length=100)
+  color = models.CharField(max_length=6)
+  symbol = models.TextField(null=True, blank=True)
 
-# class FundPriceHist(models.Model):
+  class Meta:
+    constraints = [
+      models.UniqueConstraint(fields=['user', 'name'], name='guia bolso category unique')
+    ]

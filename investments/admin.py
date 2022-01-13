@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, StockExchange, Asset, AssetPurchase, Currency, Transfer, Bank, Saving, CategoryType, GuiaBolsoTransaction
+from .models import Category, StockExchange, Asset, AssetPurchase, Currency, Transfer, Bank, Saving, CategoryType, GuiaBolsoTransaction, GuiaBolsoCategory
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -23,6 +23,10 @@ class GuiaBolsoTransactionAdmin(admin.ModelAdmin):
 	list_display = ('user', 'date', 'value', 'label', 'description', 'category')
 	list_filter = ('user', 'date', 'category')
 
+class GuiaBolsoCategoryAdmin(admin.ModelAdmin):
+	list_display = ('user', 'name', 'type', 'color', 'symbol')
+	list_filter = ('user', 'name', 'type')
+
 # Register your models here.
 admin.site.register(Currency)
 admin.site.register(Category, CategoryAdmin)
@@ -34,3 +38,4 @@ admin.site.register(Bank)
 admin.site.register(Saving)
 admin.site.register(CategoryType)
 admin.site.register(GuiaBolsoTransaction, GuiaBolsoTransactionAdmin)
+admin.site.register(GuiaBolsoCategory, GuiaBolsoCategoryAdmin)

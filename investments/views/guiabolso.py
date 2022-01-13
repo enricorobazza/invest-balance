@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
-from investments.models import GuiaBolsoToken, GuiaBolsoTransaction
+from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from investments.api.guiabolso.service import update_transactions
 
 class GuiaBolsoViews():
@@ -43,8 +43,13 @@ class GuiaBolsoViews():
 		except GuiaBolsoToken.DoesNotExist:
 			return redirect('add_token')
 
+		categories = GuiaBolsoCategory.objects.filter(user=request.user)
+		categories_dict = {}
+		for category in categories:
+			categories_dict[category.name] = category
 
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
-			'last_updated': token.last_updated
+			'last_updated': token.last_updated,
+			'categories': categories_dict
 		})
