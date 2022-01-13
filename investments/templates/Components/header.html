@@ -42,6 +42,9 @@
       <li id="risk_header" class="nav-item">
         <a class="nav-link" href="{% url 'risk' %}">Métricas de Risco</a>
       </li>
+      <li id="guiabolso_header" class="nav-item">
+        <a class="nav-link" href="{% url 'list_guiabolso' %}">GuiaBolso</a>
+      </li>
       {% if not request.user.is_anonymous %}
       <li id="add_header" class="nav-item">
         <div class="dropdown d-block text-left d-md-inline mb-3 mb-sm-0">

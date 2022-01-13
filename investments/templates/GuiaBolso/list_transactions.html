@@ -1,0 +1,50 @@
+{% extends '../main.html' %}
+{% load static %}
+{% block content %}
+
+{% csrf_token %} 
+
+<div class="row m-3">
+  <div class="col-12">
+    <div class="d-inline float-right">
+      {{last_updated|date:'d/m/Y'}} {{last_updated|time:'H:i'}}
+      <a class="btn btn-secondary ml-2" href="{% url 'refresh_guiabolso' %}">
+        <i class="fa fa-sync mr-1"></i>
+        Atualizar
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row m-3">
+  <div class="table-responsive">
+    <table id="transactions" class="table my-2 table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Data</th>
+          <th scope="col">Descrição</th>
+          <th scope="col">Valor (R$)</th>
+          <th scope="col">Categoria</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if transactions %}
+        {% for transaction in transactions %}
+        <tr class="{% if transaction.value > 0 %} bg-success {% else %} bg-danger {% endif %}">
+          <td key="date" class="align-middle">{{transaction.date|date:'d/m/Y'}}</td>
+          <td key="text" class="align-middle">{{transaction.text}}</td>
+          <td key="value" class="align-middle">{{transaction.value}}</td>
+          <td key="categort" class="align-middle">{{transaction.category}}</td>
+        </tr>
+
+        {% endfor %}
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% comment %} <script src="{% static '/js/list_assets.js' %}"></script> {% endcomment %}
+
+{% endblock %}

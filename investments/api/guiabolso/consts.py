@@ -1,0 +1,18 @@
+curl_text = """curl 'https://kasbah.guiabolso.com.br/v2/events/' \
+  -H 'authority: kasbah.guiabolso.com.br' \
+  -H 'pragma: no-cache' \
+  -H 'cache-control: no-cache' \
+  -H 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'content-type: application/json' \
+  -H 'accept: */*' \
+  -H 'origin: https://app.guiabolso.com.br' \
+  -H 'sec-fetch-site: same-site' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'referer: https://app.guiabolso.com.br/' \
+  -H 'accept-language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7' \
+  --data-raw '{"name":"users:summary:month","version":"1","payload":{"userPlatform":"GUIABOLSO","appToken":"1.1.0","os":"MacIntel","monthCode":%s},"flowId":"1c769230-9285-4c54-9a97-4c57e153fc5f","id":"d9e77702-58aa-41c0-9dca-dbffbc5a4d3c","auth":{"token":"%s","sessionToken":"%s"},"metadata":{"origin":"web","appVersion":"1.0.0","utm":"site","createdAt":"2021-12-29T20:52:17.136Z"},"identity":{}}' \
+  --compressed"""

@@ -104,17 +104,15 @@ class OptionsStrategy(models.Model):
 class GuiaBolsoToken(models.Model):
   user = models.ForeignKey(User, related_name="guiabolso_token_user", on_delete=models.CASCADE, unique=True)
   token = models.TextField()
-
-  def as_json(self):
-    return {
-      "user": self.user.username,
-      "token": self.token,
-      "last_transaction": self.last_transaction_date.strftime('%Y-%m-%d')
-    }
+  last_updated = models.DateTimeField()
+  valid = models.BooleanField(default=True)
 
   @property
   def last_transaction_date(self):
-    return GuiaBolsoTransaction.objects.filter(user=self.user).order_by('-date')[0].date
+    transactions = GuiaBolsoTransaction.objects.filter(user=self.user).order_by('-date')
+    if len(transactions) > 0:
+      return transactions[0].date
+    return None
 
 class GuiaBolsoTransaction(models.Model):
   user = models.ForeignKey(User, related_name="guiabolso_user", on_delete=models.CASCADE)
