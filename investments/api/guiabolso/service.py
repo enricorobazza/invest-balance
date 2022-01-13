@@ -6,9 +6,13 @@ import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
 from .consts import curl_text
-import zoneinfo
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction
 from django.utils import timezone
+
+try:
+    import zoneinfo
+except ImportError:
+    from backports import zoneinfo
 
 def merge_or_set(merged, df):
 	if merged is None:
