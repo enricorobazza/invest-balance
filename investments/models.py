@@ -102,7 +102,7 @@ class OptionsStrategy(models.Model):
   user = models.ForeignKey(User, related_name="options_user", on_delete=models.CASCADE)
 
 class GuiaBolsoToken(models.Model):
-  user = models.ForeignKey(User, related_name="guiabolso_token_user", on_delete=models.CASCADE, unique=True)
+  user = models.OneToOneField(User, on_delete=models.Case, related_name="guiabolso_token_user")
   token = models.TextField()
   last_updated = models.DateTimeField()
   valid = models.BooleanField(default=True)
@@ -115,21 +115,8 @@ class GuiaBolsoToken(models.Model):
     return None
 
 
-class GuiaBolsoTransaction(models.Model):
-  user = models.ForeignKey(User, related_name="guiabolso_user", on_delete=models.CASCADE)
-  date = models.DateTimeField()
-  value = models.FloatField()
-  label = models.TextField()
-  description = models.TextField()
-  category = models.CharField(max_length=100)
-
-  @property
-  def text(self):
-    if self.description is not None and self.description != "":
-      return self.description
-    return self.label
-
 class GuiaBolsoCategory(models.Model):
+  code = models.BigIntegerField(unique=True)
   user = models.ForeignKey(User, related_name="guiabolso_category_user", on_delete=models.CASCADE) 
   name = models.CharField(max_length=100)
   type = models.CharField(max_length=100)
@@ -138,5 +125,33 @@ class GuiaBolsoCategory(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(fields=['user', 'name'], name='guia bolso category unique')
+      models.UniqueConstraint(fields=['user', 'id'], name='guia bolso category unique'),
+      models.UniqueConstraint(fields=['user', 'name'], name='guia bolso category  name unique'),
+    ]
+class GuiaBolsoTransaction(models.Model):
+  code = models.BigIntegerField(unique=True)
+  user = models.ForeignKey(User, related_name="guiabolso_user", on_delete=models.CASCADE)
+  date = models.DateTimeField()
+  value = models.FloatField()
+  label = models.TextField()
+  description = models.TextField()
+  category = models.ForeignKey(GuiaBolsoCategory, on_delete=models.CASCADE, related_name="transaction_category")
+
+  @property
+  def text(self):
+    if self.description is not None and self.description != "":
+      return self.description
+    return self.label
+
+
+class GuiaBolsoCategoryBudget(models.Model):
+  category = models.ForeignKey(GuiaBolsoCategory, related_name="category_budget", on_delete=models.CASCADE)
+  goal = models.FloatField(default=0)
+  spent = models.FloatField(default=0)
+  month = models.IntegerField()
+  year = models.IntegerField()
+
+  class Meta:
+    constraints = [
+      models.UniqueConstraint(fields=['category', 'month', 'year'], name='category budget unique')
     ]

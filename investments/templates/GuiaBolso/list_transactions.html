@@ -35,9 +35,9 @@
         <tr>
           <td key="categort" class="align-middle">
             <div style="
-              background-color:#{{transaction|color:categories}};
-              color:#{{transaction|text_color:categories}};
-            " class="m-2 p-2 rounded d-inline">{{transaction|symbol:categories}} {{transaction.category}}</div>
+              background-color:#{{transaction.category.color}};
+              color:#{{transaction|text_color}};
+            " class="m-2 p-2 rounded d-inline">{{transaction|symbol}} {{transaction.category.name}}</div>
           </td>
           <td key="date" class="align-middle">{{transaction.date|date:'d/m/Y'}}</td>
           <td key="text" class="align-middle">{{transaction.text}}</td>

@@ -1,0 +1,42 @@
+id,user,name,type,color,symbol
+0,enricorobazza,Viagem,Estilo de Vida,dd5a3c,fas fa-suitcase-rolling
+1,enricorobazza,Pagamento de cartão,Lançamentos entre contas,4c4c4c,fas fa-credit-card
+2,enricorobazza,Outras rendas,Renda,006d2c,fas fa-chart-line
+3,enricorobazza,Rendimento,Renda,00a09d,fas fa-chart-line
+4,enricorobazza,Compras Casa,Gastos Essenciais,dba04b,fas fa-couch
+5,enricorobazza,Transporte,Gastos Essenciais,e6a42a,fas fa-car
+6,enricorobazza,Remuneração,Renda,00898d,fas fa-file-invoice-dollar
+7,enricorobazza,Bônus,Renda,89bb37,
+8,enricorobazza,Empréstimo,Renda,89bb37,
+9,enricorobazza,Contas residenciais,Gastos Essenciais,dba04b,
+10,enricorobazza,Educação,Gastos Essenciais,dba04b,
+11,enricorobazza,Empregados doméstic,Estilo de Vida,427d92,
+12,enricorobazza,TV / Internet / Telefone,Estilo de Vida,427d92,
+13,enricorobazza,Taxas bancárias,Estilo de Vida,427d92,
+14,enricorobazza,Saques,Estilo de Vida,427d92,
+15,enricorobazza,Lazer,Estilo de Vida,427d92,
+16,enricorobazza,Cuidados pessoais,Estilo de Vida,427d92,
+17,enricorobazza,Serviços,Estilo de Vida,427d92,
+18,enricorobazza,Família / Filhos,Estilo de Vida,427d92,
+19,enricorobazza,Despesas do trabalho,Estilo de Vida,427d92,
+20,enricorobazza,Outros gastos,Estilo de Vida,427d92,
+21,enricorobazza,Impostos,Estilo de Vida,427d92,
+22,enricorobazza,Fumar,Estilo de Vida,427d92,
+23,enricorobazza,Festas,Estilo de Vida,427d92,
+24,enricorobazza,Juros de cartão,Empréstimos,fe434a,
+25,enricorobazza,Crediário,Empréstimos,fe434a,
+26,enricorobazza,Cheque especial,Empréstimos,fe434a,
+27,enricorobazza,Crédito consignado,Empréstimos,fe434a,
+28,enricorobazza,Carnê,Empréstimos,fe434a,
+29,enricorobazza,Outros empréstimos,Empréstimos,fe434a,
+30,enricorobazza,Juros,Empréstimos,fe434a,
+31,enricorobazza,Resgate,Lançamentos entre contas,adadad,
+32,enricorobazza,Aplicação,Lançamentos entre contas,adadad,
+33,enricorobazza,Transferência,Lançamentos entre contas,adadad,
+34,enricorobazza,Categorizar,Não classificado,a17e55,
+35,enricorobazza,Bares / Restaurantes,Estilo de Vida,e3427a,fas fa-cocktail
+36,enricorobazza,Presentes / Doações,Estilo de Vida,f573ab,fas fa-gifts
+37,enricorobazza,Mercado,Gastos Essenciais,ea754b,fas fa-shopping-cart
+38,enricorobazza,Saúde,Gastos Essenciais,ed4a4a,fas fa-heartbeat
+39,enricorobazza,Compras,Estilo de Vida,00b3ae,fas fa-shopping-bag
+40,enricorobazza,Moradia,Gastos Essenciais,5b64de,fas fa-home

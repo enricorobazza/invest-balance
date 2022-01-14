@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
-from investments.api.guiabolso.service import update_transactions
+from investments.api.guiabolso.service import GuiaBolsoService
 
 class GuiaBolsoViews():
 	def add_token(request):
@@ -25,7 +25,8 @@ class GuiaBolsoViews():
 			})
 
 	def refresh_transactions(request):
-		amount_inserted = update_transactions(request.user)
+		guiabolso_service = GuiaBolsoService(request.user)
+		amount_inserted = guiabolso_service.update_transactions()
 		if amount_inserted < 0:
 			return redirect('add_token')
 
@@ -33,7 +34,8 @@ class GuiaBolsoViews():
 
 
 	def list_transactions(request):
-		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date')
+		print("Getting transactions")
+		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
 
 		if len(transactions) > 100:
 			transactions = transactions[:100]
@@ -43,13 +45,7 @@ class GuiaBolsoViews():
 		except GuiaBolsoToken.DoesNotExist:
 			return redirect('add_token')
 
-		categories = GuiaBolsoCategory.objects.filter(user=request.user)
-		categories_dict = {}
-		for category in categories:
-			categories_dict[category.name] = category
-
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
 			'last_updated': token.last_updated,
-			'categories': categories_dict
 		})
