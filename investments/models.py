@@ -122,6 +122,7 @@ class GuiaBolsoCategory(models.Model):
   type = models.CharField(max_length=100)
   color = models.CharField(max_length=6)
   symbol = models.TextField(null=True, blank=True)
+  predictable = models.BooleanField(default=False)
 
   class Meta:
     constraints = [
@@ -135,7 +136,7 @@ class GuiaBolsoTransaction(models.Model):
   value = models.FloatField()
   label = models.TextField()
   description = models.TextField()
-  category = models.ForeignKey(GuiaBolsoCategory, on_delete=models.CASCADE, related_name="transaction_category")
+  category = models.ForeignKey(GuiaBolsoCategory, on_delete=models.CASCADE, related_name="category_transactions")
 
   @property
   def text(self):

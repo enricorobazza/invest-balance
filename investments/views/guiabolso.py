@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from investments.api.guiabolso.service import GuiaBolsoService
+from django.db.models import Sum
 
 class GuiaBolsoViews():
 	def add_token(request):
@@ -32,10 +33,29 @@ class GuiaBolsoViews():
 
 		return redirect('list_guiabolso')
 
+	def get_parameters(request):
+		variable = False
+		if 'variable' in request.GET:
+			variable = request.GET['variable'] == 'true'
+
+		expenses = False
+		if 'expenses' in request.GET:
+			expenses = request.GET['expenses'] == 'true'
+
+		return variable, expenses
 
 	def list_transactions(request):
+		variable, expenses = GuiaBolsoViews.get_parameters(request)
+
 		print("Getting transactions")
 		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
+
+		if variable:
+			transactions = transactions.filter(category__predictable = False)
+
+		if expenses:
+			expense_categories = GuiaBolsoCategory.objects.annotate(month_sum = Sum('category_transactions__value')).filter(month_sum__lte = 0).values('id')
+			transactions = transactions.filter(category__in=expense_categories)
 
 		if len(transactions) > 100:
 			transactions = transactions[:100]
