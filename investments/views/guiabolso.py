@@ -90,6 +90,7 @@ class GuiaBolsoViews():
 			return redirect('add_token')
 
 		categories = GuiaBolsoViews.group_by_category(transactions)
+		total = transactions.aggregate(value=Sum('value'))['value']
 
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
@@ -97,5 +98,6 @@ class GuiaBolsoViews():
 			'last_updated': token.last_updated,
 			'variable': variable,
 			'startdate': startdate,
-			'enddate': enddate
+			'enddate': enddate,
+			'total': total
 		})
