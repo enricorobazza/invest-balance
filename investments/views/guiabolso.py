@@ -1,9 +1,10 @@
+import datetime
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from investments.api.guiabolso.service import GuiaBolsoService
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 class GuiaBolsoViews():
 	def add_token(request):
@@ -35,27 +36,50 @@ class GuiaBolsoViews():
 
 	def get_parameters(request):
 		variable = False
+		startdate = None
+		enddate = None
+
 		if 'variable' in request.GET:
 			variable = request.GET['variable'] == 'true'
 
-		expenses = False
-		if 'expenses' in request.GET:
-			expenses = request.GET['expenses'] == 'true'
+		if 'startdate' in request.GET:
+			startdate = request.GET['startdate']
+			startdate = datetime.datetime.strptime(startdate, "%d/%m/%Y")
 
-		return variable, expenses
+		if 'enddate' in request.GET:
+			enddate = request.GET['enddate']
+			enddate = datetime.datetime.strptime(enddate, "%d/%m/%Y")
+
+		return variable, startdate, enddate
+
+	def find_last_payment(transactions):
+		transactions = transactions.filter(Q(label="PAGTO SALARIO")|Q(label="PAGTO ADIANT SALARIAL"))
+		if len(transactions) > 0:
+			return transactions[0].date
+		return None
+
+	def group_by_category(transactions):
+		result = transactions.values('category__name', 'category__color', 'category__symbol').annotate(value=Sum('value'))
+		return result.order_by('value')
 
 	def list_transactions(request):
-		variable, expenses = GuiaBolsoViews.get_parameters(request)
+		variable, startdate, enddate = GuiaBolsoViews.get_parameters(request)
 
 		print("Getting transactions")
 		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
 
-		if variable:
-			transactions = transactions.filter(category__predictable = False)
+		if startdate is None:
+			startdate = GuiaBolsoViews.find_last_payment(transactions)
 
-		if expenses:
+		if variable:
+			transactions = transactions.filter(Q(category__predictable = False) & Q(exclude_from_variable = False))
 			expense_categories = GuiaBolsoCategory.objects.annotate(month_sum = Sum('category_transactions__value')).filter(month_sum__lte = 0).values('id')
 			transactions = transactions.filter(category__in=expense_categories)
+
+		transactions = transactions.filter(date__gte=startdate)
+
+		if enddate is not None:
+			transactions = transactions.filter(date__lte=enddate)
 
 		if len(transactions) > 100:
 			transactions = transactions[:100]
@@ -65,7 +89,13 @@ class GuiaBolsoViews():
 		except GuiaBolsoToken.DoesNotExist:
 			return redirect('add_token')
 
+		categories = GuiaBolsoViews.group_by_category(transactions)
+
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
+			'categories': categories,
 			'last_updated': token.last_updated,
+			'variable': variable,
+			'startdate': startdate,
+			'enddate': enddate
 		})

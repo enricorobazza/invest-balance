@@ -137,6 +137,7 @@ class GuiaBolsoTransaction(models.Model):
   label = models.TextField()
   description = models.TextField()
   category = models.ForeignKey(GuiaBolsoCategory, on_delete=models.CASCADE, related_name="category_transactions")
+  exclude_from_variable = models.BooleanField(default=False)
 
   @property
   def text(self):
