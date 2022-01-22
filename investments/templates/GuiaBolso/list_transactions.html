@@ -24,6 +24,9 @@
     <div class="d-inline float-left ml-1">
       <input type="text" id="enddate" class="datepicker" />
     </div>
+    <div id="filterCategory" class="d-inline float-left ml-1 pt-2">
+      
+    </div>
     <div class="d-inline float-right">
       {{last_updated|date:'d/m/Y'}} {{last_updated|time:'H:i'}}
       <a class="btn btn-secondary ml-2" href="{% url 'refresh_guiabolso' %}">
@@ -59,10 +62,12 @@
                 {% if categories %}
                 {% for category in categories %}
                 <tr>
+                  <td key="category_name" class="d-none">{{category.category__name}}</td>
                   <td key="category" class="align-middle">
                     <div style="
                       background-color:#{{category.category__color}};
                       color:#{{category.category__color|text_color}};
+                      cursor: pointer;
                     " class="m-2 p-2 rounded d-inline">{{category.category__symbol|symbol}} {{category.category__name}}</div>
                   </td>
                   <td key="value" class="align-middle {% if category.value > 0 %} text-success {% else %} text-danger {% endif %}">{{category.value|stringformat:".2f"}}</td>
@@ -106,6 +111,9 @@
                 {% if transactions %}
                 {% for transaction in transactions %}
                 <tr>
+                  <td key="category_name" class="d-none">
+                      {{transaction.category.name}}
+                  </td>
                   <td key="category" class="align-middle">
                     <div style="
                       background-color:#{{transaction.category.color}};
@@ -127,9 +135,6 @@
       </div>
     </div>
   </div>
-
-
-
 
 </div>
 
@@ -192,6 +197,30 @@
       if(enddate !== e.target.value) {
         updateUrl({"enddate": e.target.value});
       }
+    })
+
+    const filterTransactions = (category = "") => {
+      $("#transactions tbody tr").hide();
+      $("#transactions tbody tr").each((i, transaction) => {
+          const _category = $(transaction).find("td[key='category_name']").first().html().trim()
+          if(category == "" || _category == category)
+            $(transaction).show() 
+      })
+    } 
+
+    $("#categories td[key='category']").click(e => {
+      const category = $(e.target).parent().parent().find("td[key='category_name']").first().html().trim()
+      const div = $("<div />");
+      div.html($(e.target).parent().html());
+      div.find("div").first().append("<i class='ml-2 fa fa-times'></i>")
+      $("#filterCategory").html(div.html());
+      filterTransactions(category)
+      $("#filterCategory").click(e => {
+        $("#filterCategory").html("");
+        filterTransactions()
+        $("#collapseOne").collapse('show');
+      })
+      $("#collapseTwo").collapse('show');
     })
   });
 </script>

@@ -183,6 +183,11 @@ class GuiaBolsoService:
 			token.save()
 			return -1
 
+		transactions = GuiaBolsoTransaction.objects.filter(user=self.user, date__gte=start_month)
+		transactions_dict = {}
+		for transaction in transactions:
+			transactions_dict[transaction.code] = transaction
+
 		transactions = []
 		for i in range(df.shape[0]):
 			row = df.iloc[i]
@@ -194,6 +199,11 @@ class GuiaBolsoService:
 			transaction.label = row['label']
 			transaction.description = row['description']
 			transaction.category = self.categories[row['categoryId']]
+
+			if transaction.code in transactions_dict:
+				old_transaction = transactions_dict[transaction.code]
+				transaction.exclude_from_variable = old_transaction.exclude_from_variable
+
 			transactions.append(transaction)
 
 		deleted = GuiaBolsoTransaction.objects.filter(user=self.user, date__gte=start_month).delete()[0]

@@ -59,7 +59,10 @@ class GuiaBolsoViews():
 		return None
 
 	def group_by_category(transactions):
-		result = transactions.values('category__name', 'category__color', 'category__symbol').annotate(value=Sum('value'))
+		result = transactions.values(
+			'category__name', 'category__code',
+			'category__color', 'category__symbol'
+		).annotate(value=Sum('value'))
 		return result.order_by('value')
 
 	def list_transactions(request):
@@ -81,6 +84,9 @@ class GuiaBolsoViews():
 		if enddate is not None:
 			transactions = transactions.filter(date__lte=enddate)
 
+		categories = GuiaBolsoViews.group_by_category(transactions)
+		total = transactions.aggregate(value=Sum('value'))['value']
+
 		if len(transactions) > 100:
 			transactions = transactions[:100]
 
@@ -88,9 +94,6 @@ class GuiaBolsoViews():
 			token = GuiaBolsoToken.objects.get(user=request.user)
 		except GuiaBolsoToken.DoesNotExist:
 			return redirect('add_token')
-
-		categories = GuiaBolsoViews.group_by_category(transactions)
-		total = transactions.aggregate(value=Sum('value'))['value']
 
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
