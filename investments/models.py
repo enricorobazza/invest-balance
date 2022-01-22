@@ -124,6 +124,9 @@ class GuiaBolsoCategory(models.Model):
   symbol = models.TextField(null=True, blank=True)
   predictable = models.BooleanField(default=False)
 
+  def __str__(self):
+    return self.name
+
   class Meta:
     constraints = [
       models.UniqueConstraint(fields=['user', 'id'], name='guia bolso category unique'),
@@ -138,6 +141,9 @@ class GuiaBolsoTransaction(models.Model):
   description = models.TextField()
   category = models.ForeignKey(GuiaBolsoCategory, on_delete=models.CASCADE, related_name="category_transactions")
   exclude_from_variable = models.BooleanField(default=False)
+
+  def __str__(self):
+    return self.text
 
   @property
   def text(self):
