@@ -1,5 +1,5 @@
 import datetime
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
@@ -32,12 +32,17 @@ class GuiaBolsoViews():
 		if amount_inserted < 0:
 			return redirect('add_token')
 
-		return redirect('list_guiabolso')
+		params = ""
+		for key in request.GET:
+			params += f"{key}={request.GET[key]}&"		
+
+		return redirect(f"{reverse('list_guiabolso')}?{params[:-1]}")
 
 	def get_parameters(request):
 		variable = False
 		startdate = None
 		enddate = None
+		n = 0
 
 		if 'variable' in request.GET:
 			variable = request.GET['variable'] == 'true'
@@ -50,13 +55,25 @@ class GuiaBolsoViews():
 			enddate = request.GET['enddate']
 			enddate = datetime.datetime.strptime(enddate, "%d/%m/%Y")
 
-		return variable, startdate, enddate
+		if 'n' in request.GET:
+			n = int(request.GET['n'])
 
-	def find_last_payment(transactions):
-		transactions = transactions.filter(Q(label="PAGTO SALARIO")|Q(label="PAGTO ADIANT SALARIAL"))
-		if len(transactions) > 0:
-			return transactions[0].date
-		return None
+		return variable, startdate, enddate, n
+
+	def find_last_payment(transactions, n):
+		transactions = transactions.filter(Q(label="PAGTO SALARIO")|Q(label="PAGTO ADIANT SALARIAL")).values('date').distinct()
+
+		if len(transactions) == 0:
+			return None, None
+
+		if n is None or n == 0 or len(transactions) == 1:
+			return transactions[0]['date'], None
+
+		if n > len(transactions):
+			last = len(transactions)
+			return transactions[last-1]['date'], transactions[last-2]['date']
+
+		return transactions[n]['date'], transactions[n-1]['date']
 
 	def group_by_category(transactions):
 		result = transactions.values(
@@ -66,13 +83,15 @@ class GuiaBolsoViews():
 		return result.order_by('value')
 
 	def list_transactions(request):
-		variable, startdate, enddate = GuiaBolsoViews.get_parameters(request)
+		variable, startdate, enddate, n = GuiaBolsoViews.get_parameters(request)
 
 		print("Getting transactions")
 		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
 
-		if startdate is None:
-			startdate = GuiaBolsoViews.find_last_payment(transactions)
+		if startdate is None or n is not None:
+			startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
+			if enddate is None:
+				enddate = _enddate
 
 		if variable:
 			transactions = transactions.filter(Q(category__predictable = False) & Q(exclude_from_variable = False))
