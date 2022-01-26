@@ -1,0 +1,53 @@
+{% load guiabolso_tags %}
+
+<div class="table-responsive">
+	<table id="transactions" class="table table-striped">
+	  <tbody>
+		{% if grouped_transactions %}
+		{% for date, date_transactions in grouped_transactions.items %}
+			<tr class="bg-dark text-white"><td>{{date|date:'d/m/Y'}}</td></tr>
+			{% for transaction in date_transactions %}
+				<tr {% if transaction.is_ignored %}
+					style="opacity: 0.1"
+					{% endif %}
+					class="d-flex align-items-center"
+				>
+					<td class="w-100 d-flex align-items-center justify-content-between">
+						<div class="t-code d-none">{{transaction.code}}</div>
+						<div class="t-category-name d-none">
+							{{transaction.category.name}}
+						</div>
+
+						<div class="left d-flex align-items-center">
+							<div class="t-is-ignored d-inline">
+								{% if transaction.is_ignored %}
+									<i class="fa fa-lg fa-eye-slash mr-2 ignore-input"></i>
+								{% else %}
+									<i class="fa fa-lg fa-eye mr-2 ignore-input"></i>
+								{% endif %}
+							</div>
+							
+							<div class="t-description d-inline-flex flex-column ml-4">
+								<div class="t-category d-inline">
+									<div style="
+									color:#{{transaction.category.color}};
+									font-size: 12px;
+									text-transform: uppercase;
+									" class="d-inline">{{transaction.category.name}}</div>
+								</div>
+								<div class="t-text d-inline">{{transaction.text}}</div>
+							</div>
+						</div>
+						<div class="mr-4 t-value d-inline {% if transaction.value > 0 %} text-success {% else %} text-danger {% endif %}">{{transaction.value}}</div>
+					</td>
+					
+				
+				
+				</tr>
+			{% endfor %}
+		{% endfor %}
+		{% endif %}
+
+	  </tbody>
+	</table>
+  </div>

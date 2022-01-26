@@ -1,0 +1,49 @@
+{% load guiabolso_tags %}
+
+<div class="table-responsive">
+	<table id="transactions" class="table table-striped">
+	  <thead class="thead-dark">
+		<tr>
+		  <th scope="col">Ignorar</th>
+		  <th scope="col">Categoria</th>
+		  <th scope="col">Data</th>
+		  <th scope="col">Descrição</th>
+		  <th scope="col">Valor (R$)</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		{% if transactions %}
+		{% for transaction in transactions %}
+		<tr {% if transaction.is_ignored %}
+			style="opacity: 0.1"
+			{% endif %}
+		>
+		  <td class="t-code d-none">{{transaction.code}}</td>
+		  <td class="t-is-ignored align-middle ignore-input cursor-pointer">
+			{% if transaction.is_ignored %}
+				<i class="fa fa-lg fa-eye-slash mr-2"></i>
+			{% else %}
+				<i class="fa fa-lg fa-eye mr-2"></i>
+			{% endif %}
+			 Ignorar
+		  </td>
+		  <td class="t-category-name d-none">
+			  {{transaction.category.name}}
+		  </td>
+		  <td class="t-category align-middle">
+			<div style="
+			  background-color:#{{transaction.category.color}};
+			  color:#{{transaction.category.color|text_color}};
+			" class="m-2 p-2 rounded d-inline">{{transaction.category.symbol|symbol}} {{transaction.category.name}}</div>
+		  </td>
+		  <td class="t-date align-middle">{{transaction.date|date:'d/m/Y'}}</td>
+		  <td class="t-text align-middle">{{transaction.text}}</td>
+		  <td class="t-value align-middle {% if transaction.value > 0 %} text-success {% else %} text-danger {% endif %}">{{transaction.value}}</td>
+		</tr>
+
+		{% endfor %}
+		{% endif %}
+
+	  </tbody>
+	</table>
+  </div>

@@ -6,56 +6,71 @@
 
 {% csrf_token %} 
 
-<div class="row m-3">
-  <div class="col-12">
-    <div class="d-inline float-left">
-      <ul class="nav nav-pills">
-        <li class="nav-item border border-{% if not variable %}white{% else %}primary{% endif %} rounded">
-          <a class="nav-link {% if not variable %}active{% endif %}" id="all" href="#">Todos</a>
-        </li>
-        <li class="nav-item border border-{% if variable %}white{% else %}primary{% endif %} rounded">
-          <a class="nav-link {% if variable %}active{% endif %}" id="variable" href="#">Variáveis</a>
-        </li>
-      </ul>
-    </div>
-    <div class="d-inline float-left ml-2">
-      <a id="minus" class="btn rounded-circle text-dark bg-light"><i class="fa fa-lg fa-arrow-left"></i></a>
-      <a id="plus" class="btn rounded-circle text-dark bg-light"><i class="fa fa-lg fa-arrow-right"></i></a>
-    </div>
-    <div class="d-inline float-left ml-3">
-      <input type="text" id="startdate" class="datepicker" />
-    </div>
-    <div class="d-inline float-left ml-1">
-      <input type="text" id="enddate" class="datepicker" />
-    </div>
-    <div id="filterCategory" class="d-inline float-left ml-1 pt-2">
-      
-    </div>
-    <div class="d-inline float-right">
-      {{last_updated|date:'d/m/Y'}} {{last_updated|time:'H:i'}}
-      <a class="btn btn-secondary ml-2" id="refresh" href="#">
-        <i class="fa fa-sync mr-1"></i>
-        Atualizar
-      </a>
-    </div>
-  </div>
+<style>
+
+  td[key='category']{
+    font-size: 13px;
+  }
+
+  .ignore-input:hover{
+    color: blue;
+    cursor: pointer;
+  }
+
+  @media (min-width: 990px) {
+    td[key='category']{
+      font-size: 16px;
+    }
+  }
+
+</style>
+
+<div class="d-none d-lg-flex row m-3">
+  {% include './filter.html' %}
 </div>
 
-<div class="row m-3">
-  <div id="accordion" class="col-12">
+<div class="row m-0 m-lg-3">
+  <div id="accordion" class="col-12 p-0">
+    <div class="card d-block d-lg-none">
+      <div class="card-header" id="headingZero">
+        <h5 class="mb-0">
+          <button class="btn btn-link w-100 d-flex justify-content-between align-items-center p-0" data-toggle="collapse" data-target="#collapseZero" aria-expanded="true" aria-controls="collapseZero">
+            Filtros
+            <a class="btn btn-secondary ml-2 refresh float-right" href="#">
+              <i class="fa fa-sync mr-1"></i>
+            </a>
+          </button>
+        </h5>
+      </div>
+  
+      <div id="collapseZero" class="collapse" aria-labelledby="headingZero" data-parent="#accordion">
+        <div class="card-body p-0 py-2">
+          {% include './filter.html' %}
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-header" id="headingOne">
         <h5 class="mb-0">
-          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <button class="btn btn-link px-0 w-100 d-flex justify-content-between align-items-center" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
             Categorias
+            <span class="
+              {% if total > 0 %}
+                text-success
+              {% else %}
+                text-danger 
+              {% endif %}
+            ">
+              {{total|stringformat:".2f"}}
+            </span>
           </button>
         </h5>
       </div>
   
       <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-        <div class="card-body">
+        <div class="card-body p-0">
           <div class="table-responsive">
-            <table id="categories" class="table my-2 table-striped">
+            <table id="categories" class="table table-striped">
               <thead class="thead-dark">
                 <tr>
                   <th scope="col">Categoria</th>
@@ -94,62 +109,17 @@
     <div class="card">
       <div class="card-header" id="headingTwo">
         <h5 class="mb-0">
-          <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          <button class="btn btn-link px-0 w-100 d-flex justify-content-between align-items-center collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
             Transações
           </button>
         </h5>
       </div>
       <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-        <div class="card-body">
-          <div class="table-responsive">
-            <table id="transactions" class="table my-2 table-striped">
-              <thead class="thead-dark">
-                <tr>
-                  <th scope="col">Ignorar</th>
-                  <th scope="col">Categoria</th>
-                  <th scope="col">Data</th>
-                  <th scope="col">Descrição</th>
-                  <th scope="col">Valor (R$)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% if transactions %}
-                {% for transaction in transactions %}
-                <tr {% if transaction.is_ignored %}
-                    style="opacity: 0.1"
-                    {% endif %}
-                >
-                  <td key="code" class="d-none">{{transaction.code}}</td>
-                  <td key="is_ignored" class="align-middle">
-                    <div class="form-check">
-                      <input class="form-check-input ignore-input" type="checkbox" value="" 
-                      {% if transaction.is_ignored %} checked {% endif %}
-                      >
-                      <label class="form-check-label">
-                        Ignorar
-                      </label>
-                    </div>
-                  </td>
-                  <td key="category_name" class="d-none">
-                      {{transaction.category.name}}
-                  </td>
-                  <td key="category" class="align-middle">
-                    <div style="
-                      background-color:#{{transaction.category.color}};
-                      color:#{{transaction.category.color|text_color}};
-                    " class="m-2 p-2 rounded d-inline">{{transaction.category.symbol|symbol}} {{transaction.category.name}}</div>
-                  </td>
-                  <td key="date" class="align-middle">{{transaction.date|date:'d/m/Y'}}</td>
-                  <td key="text" class="align-middle">{{transaction.text}}</td>
-                  <td key="value" class="align-middle {% if transaction.value > 0 %} text-success {% else %} text-danger {% endif %}">{{transaction.value}}</td>
-                </tr>
-
-                {% endfor %}
-                {% endif %}
-
-              </tbody>
-            </table>
-          </div>
+        <div class="card-body p-0 d-none d-lg-block">
+          {% include './transactions_lg.html' %}
+        </div>
+        <div class="card-body p-0 d-block d-lg-none">
+          {% include './transactions.html' %}
         </div>
       </div>
     </div>

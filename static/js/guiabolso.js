@@ -23,7 +23,7 @@ $(document).ready(() => {
     return 0;
   };
 
-  $("#minus").click((e) => {
+  $(".minus").click((e) => {
     e.preventDefault();
     let params = getParams();
     const n = getN(params) + 1;
@@ -31,7 +31,7 @@ $(document).ready(() => {
     buildUrl(params);
   });
 
-  $("#plus").click((e) => {
+  $(".plus").click((e) => {
     e.preventDefault();
     let params = getParams();
     let n = getN(params) - 1;
@@ -46,7 +46,7 @@ $(document).ready(() => {
     buildUrl(params, _baseUrl);
   };
 
-  $("#all").click((e) => {
+  $(".all").click((e) => {
     e.preventDefault();
     let params = getParams();
     if ("variable" in params) {
@@ -55,17 +55,17 @@ $(document).ready(() => {
     buildUrl(params);
   });
 
-  $("#variable").click((e) => {
+  $(".variable").click((e) => {
     e.preventDefault();
     updateUrl({ variable: "true" });
   });
 
-  $("#refresh").click((e) => {
+  $(".refresh").click((e) => {
     e.preventDefault();
     updateUrl({}, refreshUrl);
   });
 
-  $("#startdate").datepicker({
+  $(".startdate").datepicker({
     uiLibrary: "bootstrap4",
     value:
       startDate ||
@@ -74,7 +74,7 @@ $(document).ready(() => {
     format: "dd/mm/yyyy",
   });
 
-  $("#enddate").datepicker({
+  $(".enddate").datepicker({
     uiLibrary: "bootstrap4",
     value:
       endDate ||
@@ -83,17 +83,17 @@ $(document).ready(() => {
     format: "dd/mm/yyyy",
   });
 
-  let enddate = $("#enddate").val();
-  let startdate = $("#startdate").val();
+  let enddate = $(".enddate").val();
+  let startdate = $(".startdate").val();
 
-  $("#startdate").change((e) => {
+  $(".startdate").change((e) => {
     e.preventDefault();
     if (startdate !== e.target.value) {
       updateUrl({ startdate: e.target.value });
     }
   });
 
-  $("#enddate").change((e) => {
+  $(".enddate").change((e) => {
     e.preventDefault();
     if (enddate !== e.target.value) {
       updateUrl({ enddate: e.target.value });
@@ -104,7 +104,7 @@ $(document).ready(() => {
     $("#transactions tbody tr").hide();
     $("#transactions tbody tr").each((i, transaction) => {
       const _category = $(transaction)
-        .find("td[key='category_name']")
+        .find(".t-category-name")
         .first()
         .html()
         .trim();
@@ -123,20 +123,21 @@ $(document).ready(() => {
     const div = $("<div />");
     div.html($(e.target).parent().html());
     div.find("div").first().append("<i class='ml-2 fa fa-times'></i>");
-    $("#filterCategory").html(div.html());
+    div.find("div").first().removeClass("m-2").addClass("ml-2");
+    $(".filter-category").html(div.html());
     filterTransactions(category);
-    $("#filterCategory").click((e) => {
-      $("#filterCategory").html("");
+    $(".filter-category").click((e) => {
+      $(".filter-category").html("");
       filterTransactions();
       $("#collapseOne").collapse("show");
     });
     $("#collapseTwo").collapse("show");
   });
 
-  $(".ignore-input").change((e) => {
+  $(".ignore-input").click((e) => {
     const el = e.target;
     const tr = $(el).parent().parent().parent();
-    const code = $(tr).find("td[key='code']").first().html();
+    const code = $(tr).find(".t-code").first().html();
     const params = getParams();
     let ignore = [];
 
@@ -144,7 +145,11 @@ $(document).ready(() => {
       ignore = params["ignore"].split(",");
     }
 
-    if (e.target.checked) {
+    const isIgnored = String($(e.target).parent().html()).includes(
+      "fa-eye-slash"
+    );
+
+    if (!isIgnored) {
       ignore.push(code);
     } else {
       ignore = ignore.filter((val) => val != code);

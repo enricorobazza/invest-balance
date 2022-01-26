@@ -5,6 +5,9 @@ from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from investments.api.guiabolso.service import GuiaBolsoService
 from django.db.models import Sum, Q, Case, Value, When, BooleanField
+from itertools import groupby
+from operator import attrgetter
+from django.db.models.functions import TruncDate
 
 class GuiaBolsoViews():
 	def add_token(request):
@@ -88,6 +91,9 @@ class GuiaBolsoViews():
 		return result.order_by('value')
 
 	def list_transactions(request):
+		if request.user.is_anonymous:
+			return redirect("login")
+
 		variable, startdate, enddate, ignore, n = GuiaBolsoViews.get_parameters(request)
 
 		print("Getting transactions")
@@ -128,8 +134,12 @@ class GuiaBolsoViews():
 		except GuiaBolsoToken.DoesNotExist:
 			return redirect('add_token')
 
+		transactions = transactions.annotate(_date=TruncDate('date'))
+
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
+			'grouped_transactions': {k: list(v) for k, v in groupby(transactions, attrgetter('_date'))},
+			'transactions'
 			'categories': categories,
 			'last_updated': token.last_updated,
 			'variable': variable,

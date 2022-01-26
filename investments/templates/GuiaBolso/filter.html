@@ -1,0 +1,37 @@
+<div class="flex-1 d-flex justify-content-around w-100 flex-wrap">
+	<div class="d-flex col-12 col-lg-auto p-0">
+		<div class="flex-grow-1">
+			<ul class="nav nav-pills col-12">
+				<li class="flex-1 col-6 col-lg-auto p-0 text-center nav-item border border-{% if not variable %}white{% else %}primary{% endif %} rounded">
+					<a class="w-100 nav-link {% if not variable %}active{% endif %} all" href="#">Todos</a>
+				</li>
+				<li class="flex-1 col-6 col-lg-auto p-0 text-center nav-item border border-{% if variable %}white{% else %}primary{% endif %} rounded">
+					<a class="w-100 nav-link {% if variable %}active{% endif %} variable" href="#">Variáveis</a>
+				</li>
+			</ul>
+		</div>
+		<div class="flex-1">
+			<a class="minus btn rounded-circle text-dark bg-light"><i class="fa fa-lg fa-arrow-left"></i></a>
+			<a class="plus btn rounded-circle text-dark bg-light ml-3"><i class="fa fa-lg fa-arrow-right"></i></a>
+		</div>
+	</div>
+
+	<div class="flex-1 mt-2 mt-lg-0 col-12 col-lg-auto p-0">
+		<input type="text" class="startdate datepicker" />
+	</div>
+
+	<div class="flex-1 mt-2 mt-lg-0 ml-0 ml-lg-2 col-12 col-lg-auto p-0">
+		<input type="text" class="enddate datepicker" />
+	</div>
+
+	<div class="d-flex filter-category mt-2 mt-lg-0 col-12 col-lg-auto p-0">
+
+	</div>
+	<div class="d-none d-lg-flex align-items-center justify-content-end">
+		{{last_updated|date:'d/m/Y'}} {{last_updated|time:'H:i'}}
+		<a class="btn btn-secondary ml-2 refresh" href="#">
+			<i class="fa fa-sync mr-1"></i>
+			Atualizar
+		</a>
+	</div>
+</div>
