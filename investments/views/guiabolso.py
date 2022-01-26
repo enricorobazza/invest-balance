@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from investments.api.guiabolso.service import GuiaBolsoService
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Case, Value, When, BooleanField
 
 class GuiaBolsoViews():
 	def add_token(request):
@@ -42,6 +42,7 @@ class GuiaBolsoViews():
 		variable = False
 		startdate = None
 		enddate = None
+		ignore = []
 		n = 0
 
 		if 'variable' in request.GET:
@@ -55,10 +56,14 @@ class GuiaBolsoViews():
 			enddate = request.GET['enddate']
 			enddate = datetime.datetime.strptime(enddate, "%d/%m/%Y")
 
+		if 'ignore' in request.GET:
+			ignore = request.GET['ignore']
+			ignore = [int(i) for i in ignore.split(',')]
+
 		if 'n' in request.GET:
 			n = int(request.GET['n'])
 
-		return variable, startdate, enddate, n
+		return variable, startdate, enddate, ignore, n
 
 	def find_last_payment(transactions, n):
 		transactions = transactions.filter(Q(label="PAGTO SALARIO")|Q(label="PAGTO ADIANT SALARIAL")).values('date').distinct()
@@ -83,15 +88,17 @@ class GuiaBolsoViews():
 		return result.order_by('value')
 
 	def list_transactions(request):
-		variable, startdate, enddate, n = GuiaBolsoViews.get_parameters(request)
+		variable, startdate, enddate, ignore, n = GuiaBolsoViews.get_parameters(request)
 
 		print("Getting transactions")
 		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
 
 		if startdate is None or n is not None:
-			startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
+			_startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
 			if enddate is None:
 				enddate = _enddate
+			if startdate is None:
+				startdate = _startdate
 
 		if variable:
 			transactions = transactions.filter(Q(category__predictable = False) & Q(exclude_from_variable = False))
@@ -99,12 +106,19 @@ class GuiaBolsoViews():
 			transactions = transactions.filter(category__in=expense_categories)
 
 		transactions = transactions.filter(date__gte=startdate)
-
+		
 		if enddate is not None:
 			transactions = transactions.filter(date__lte=enddate)
 
-		categories = GuiaBolsoViews.group_by_category(transactions)
-		total = transactions.aggregate(value=Sum('value'))['value']
+		transactions = transactions.annotate(is_ignored = Case(
+			When(code__in=ignore, then=True),
+			default=False,
+			output_field=BooleanField()
+		))
+		not_ignored_transactions = transactions.filter(is_ignored=False)
+
+		categories = GuiaBolsoViews.group_by_category(not_ignored_transactions)
+		total = not_ignored_transactions.aggregate(value=Sum('value'))['value']
 
 		if len(transactions) > 100:
 			transactions = transactions[:100]

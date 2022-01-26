@@ -8,7 +8,8 @@ $(document).ready(() => {
     let url = _baseUrl == "" ? baseUrl : _baseUrl;
 
     Object.keys(params).forEach((key) => {
-      url += `${key}=${params[key]}&`;
+      if (params[key] != null && params[key] != "")
+        url += `${key}=${params[key]}&`;
     });
 
     url = url.substr(0, url.length - 1);
@@ -130,5 +131,25 @@ $(document).ready(() => {
       $("#collapseOne").collapse("show");
     });
     $("#collapseTwo").collapse("show");
+  });
+
+  $(".ignore-input").change((e) => {
+    const el = e.target;
+    const tr = $(el).parent().parent().parent();
+    const code = $(tr).find("td[key='code']").first().html();
+    const params = getParams();
+    let ignore = [];
+
+    if ("ignore" in params) {
+      ignore = params["ignore"].split(",");
+    }
+
+    if (e.target.checked) {
+      ignore.push(code);
+    } else {
+      ignore = ignore.filter((val) => val != code);
+    }
+
+    updateUrl({ ignore: ignore.join(",") });
   });
 });
