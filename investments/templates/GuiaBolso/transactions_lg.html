@@ -1,7 +1,7 @@
 {% load guiabolso_tags %}
 
 <div class="table-responsive">
-	<table id="transactions" class="table table-striped">
+	<table class="table table-striped transactions-table-lg">
 	  <thead class="thead-dark">
 		<tr>
 		  <th scope="col">Ignorar</th>
@@ -17,6 +17,7 @@
 		<tr {% if transaction.is_ignored %}
 			style="opacity: 0.1"
 			{% endif %}
+			class="transaction"
 		>
 		  <td class="t-code d-none">{{transaction.code}}</td>
 		  <td class="t-is-ignored align-middle ignore-input cursor-pointer">

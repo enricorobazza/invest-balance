@@ -101,15 +101,41 @@ $(document).ready(() => {
   });
 
   const filterTransactions = (category = "") => {
-    $("#transactions tbody tr").hide();
-    $("#transactions tbody tr").each((i, transaction) => {
-      const _category = $(transaction)
-        .find(".t-category-name")
-        .first()
-        .html()
-        .trim();
-      if (category == "" || _category == category) $(transaction).show();
-    });
+    $(".transactions-table tbody tr.transaction-date").hide();
+
+    const applyHide = (selector, hideFn, showFn, plusFn) => {
+      hideFn($(`${selector}  tbody tr.transaction`));
+
+      $(`${selector} tbody tr.transaction`).each((i, transaction) => {
+        const _category = $(transaction)
+          .find(".t-category-name")
+          .first()
+          .html()
+          .trim();
+        if (category == "" || _category == category) {
+          showFn($(transaction));
+          if (plusFn) plusFn(transaction);
+        }
+      });
+    };
+
+    applyHide(
+      ".transactions-table",
+      (el) => el.removeClass("d-flex").addClass("d-none"),
+      (el) => el.removeClass("d-none").addClass("d-flex"),
+      (transaction) => {
+        const dateKey = $(transaction).attr("date-key");
+        $(
+          `.transactions-table tbody tr.transaction-date[key='${dateKey}']`
+        ).show();
+      }
+    );
+
+    applyHide(
+      ".transactions-table-lg",
+      (el) => el.hide(),
+      (el) => el.show()
+    );
   };
 
   $("#categories td[key='category']").click((e) => {
