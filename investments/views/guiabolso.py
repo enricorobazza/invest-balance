@@ -139,7 +139,6 @@ class GuiaBolsoViews():
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
 			'grouped_transactions': {k: list(v) for k, v in groupby(transactions, attrgetter('_date'))},
-			'transactions'
 			'categories': categories,
 			'last_updated': token.last_updated,
 			'variable': variable,
