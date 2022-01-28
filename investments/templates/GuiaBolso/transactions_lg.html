@@ -21,12 +21,14 @@
 		>
 		  <td class="t-code d-none">{{transaction.code}}</td>
 		  <td class="t-is-ignored align-middle ignore-input cursor-pointer">
-			{% if transaction.is_ignored %}
-				<i class="fa fa-lg fa-eye-slash mr-2"></i>
-			{% else %}
-				<i class="fa fa-lg fa-eye mr-2"></i>
-			{% endif %}
-			 Ignorar
+			  <div>
+				{% if transaction.is_ignored %}
+					<i class="fa fa-lg fa-eye-slash mr-2"></i>
+				{% else %}
+					<i class="fa fa-lg fa-eye mr-2"></i>
+				{% endif %}
+				Ignorar
+			  </div>
 		  </td>
 		  <td class="t-category-name d-none">
 			  {{transaction.category.name}}
