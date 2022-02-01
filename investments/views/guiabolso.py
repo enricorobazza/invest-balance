@@ -74,10 +74,10 @@ class GuiaBolsoViews():
 		if len(transactions) == 0:
 			return None, None
 
-		if n is None or n == 0 or len(transactions) == 1:
+		if n is None or n == 0 or len(transactions) == 1: # current period
 			return transactions[0]['date'], None
 
-		if n > len(transactions):
+		if n > len(transactions): # in case there are no more periods
 			last = len(transactions)
 			return transactions[last-1]['date'], transactions[last-2]['date']
 
@@ -102,7 +102,7 @@ class GuiaBolsoViews():
 		if startdate is None or n is not None:
 			_startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
 			if enddate is None:
-				enddate = _enddate
+				enddate = _enddate - datetime.timedelta(days=1)
 			if startdate is None:
 				startdate = _startdate
 
