@@ -88,6 +88,22 @@ $(document).ready(() => {
   let enddate = $(".enddate").val();
   let startdate = $(".startdate").val();
 
+  $(".startdatebtn").click((e) => {
+    e.preventDefault();
+    const curDate = $($(".startdatetext")[1]).val();
+    if (startdate !== curDate) {
+      updateUrl({ startdate: curDate });
+    }
+  });
+
+  $(".enddatebtn").click((e) => {
+    e.preventDefault();
+    const curDate = $($(".enddatetext")[1]).val();
+    if (enddate !== curDate) {
+      updateUrl({ enddate: curDate });
+    }
+  });
+
   $(".startdate").change((e) => {
     e.preventDefault();
     if (startdate !== e.target.value) {

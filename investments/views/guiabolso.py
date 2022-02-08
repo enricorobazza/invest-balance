@@ -174,7 +174,7 @@ class GuiaBolsoViews():
 			'categories': categories,
 			'last_updated': token.last_updated,
 			'variable': variable,
-			'startdate': startdate,
-			'enddate': enddate,
+			'startdate': startdate if startdate is not None else datetime.date.today(),
+			'enddate': enddate if enddate is not None else datetime.date.today(),
 			'total': total
 		})
