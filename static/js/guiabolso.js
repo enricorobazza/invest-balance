@@ -174,8 +174,14 @@ $(document).ready(() => {
     const params = getParams();
     let ignore = [];
 
-    if ("ignore" in params) {
-      ignore = params["ignore"].split(",");
+    if (isTransaction) {
+      if ("ignore" in params) {
+        ignore = params["ignore"].split(",");
+      }
+    } else {
+      if ("category_ignore" in params) {
+        ignore = params["category_ignore"].split(",");
+      }
     }
 
     const isIgnored = String($(e.target).parent().html()).includes(
