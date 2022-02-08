@@ -73,6 +73,7 @@
             <table id="categories" class="table table-striped">
               <thead class="thead-dark">
                 <tr>
+                  <th scope="col">Ignorar</th>
                   <th scope="col">Categoria</th>
                   <th scope="col">Valor (R$)</th>
                 </tr>
@@ -80,16 +81,31 @@
               <tbody>
                 {% if categories %}
                 {% for category in categories %}
-                <tr>
-                  <td key="category_name" class="d-none">{{category.category__name}}</td>
-                  <td key="category" class="align-middle">
+                <tr {% if category.is_ignored %}
+                  style="opacity: 0.1"
+                  {% endif %}
+                  class="category"
+                >
+                  <td class="d-none c-code">{{category.category__code}}</td>
+                  <td class="d-none c-name">{{category.category__name}}</td>
+                  <td class="c-is-ignored align-middle ignore-input cursor-pointer">
+                    <div>
+                    {% if category.is_ignored %}
+                      <i class="fa fa-lg fa-eye-slash mr-2"></i>
+                    {% else %}
+                      <i class="fa fa-lg fa-eye mr-2"></i>
+                    {% endif %}
+                    Ignorar
+                    </div>
+                  </td>
+                  <td class="align-middle category">
                     <div style="
                       background-color:#{{category.category__color}};
                       color:#{{category.category__color|text_color}};
                       cursor: pointer;
                     " class="m-2 p-2 rounded d-inline">{{category.category__symbol|symbol}} {{category.category__name}}</div>
                   </td>
-                  <td key="value" class="align-middle {% if category.value > 0 %} text-success {% else %} text-danger {% endif %}">{{category.value|stringformat:".2f"}}</td>
+                  <td class="c-value align-middle {% if category.value > 0 %} text-success {% else %} text-danger {% endif %}">{{category.value|stringformat:".2f"}}</td>
                 </tr>
 
                 {% endfor %}
@@ -97,6 +113,7 @@
 
                 <tr class="bg-dark text-white">
                   <td class="align-middle pl-4">Total</td>
+                  <td></td>
                   <td key="value" class="align-middle">{{total|stringformat:".2f"}}</td>
                 </td>
 

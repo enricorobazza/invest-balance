@@ -135,6 +135,7 @@ class GuiaBolsoService:
 			# start_month = datetime.datetime.now() - relativedelta(months=1)
 
 		start_month = start_month.replace(day=1, tzinfo=None)
+		end_month = end_month.replace(tzinfo=None)
 
 		month = end_month
 		merged_df = None
@@ -149,9 +150,10 @@ class GuiaBolsoService:
 			month = month - relativedelta(months=1)
 			is_first = False
 
-		merged_df = merged_df[~merged_df["deleted"]]
-		merged_df = merged_df[~merged_df["duplicated"]]
-		merged_df = merged_df[['id', 'label', 'date', 'currency', 'description', 'value', 'categoryId']]
+		if merged_df is not None and merged_df.shape[0] > 0:
+			merged_df = merged_df[~merged_df["deleted"]]
+			merged_df = merged_df[~merged_df["duplicated"]]
+			merged_df = merged_df[['id', 'label', 'date', 'currency', 'description', 'value', 'categoryId']]
 
 		return merged_df, start_month
 
@@ -166,7 +168,7 @@ class GuiaBolsoService:
 			Model.objects.bulk_create(batch, batch_size, ignore_conflicts=ignore_conflicts)
 			start = end
 
-	def update_transactions(self):
+	def update_transactions(self, startdate = None, enddate = None):
 		try:
 			token = GuiaBolsoToken.objects.get(user=self.user)
 		except GuiaBolsoToken.DoesNotExist:
@@ -176,7 +178,15 @@ class GuiaBolsoService:
 			return -1
 
 		start_month = token.last_transaction_date
-		df, start_month = self.get_months_for_token(token.token, start_month)
+		end_month = datetime.datetime.now()
+
+		if startdate is not None:
+			start_month = startdate
+
+		if enddate is not None:
+			end_month = enddate
+
+		df, start_month = self.get_months_for_token(token.token, start_month, end_month)
 
 		if df is None:
 			token.valid = False 
@@ -206,7 +216,7 @@ class GuiaBolsoService:
 
 			transactions.append(transaction)
 
-		deleted = GuiaBolsoTransaction.objects.filter(user=self.user, date__gte=start_month).delete()[0]
+		deleted = GuiaBolsoTransaction.objects.filter(user=self.user, date__gte=start_month, date__lte=end_month).delete()[0]
 		self.batch_insert(transactions, GuiaBolsoTransaction)
 
 		token.last_updated = timezone.now()

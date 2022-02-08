@@ -28,6 +28,7 @@ $(document).ready(() => {
     let params = getParams();
     const n = getN(params) + 1;
     params["n"] = n;
+    delete params["ignore"];
     buildUrl(params);
   });
 
@@ -37,6 +38,7 @@ $(document).ready(() => {
     let n = getN(params) - 1;
     if (n < 0) return;
     params["n"] = n;
+    delete params["ignore"];
     buildUrl(params);
   });
 
@@ -62,7 +64,7 @@ $(document).ready(() => {
 
   $(".refresh").click((e) => {
     e.preventDefault();
-    updateUrl({}, refreshUrl);
+    updateUrl(getParams(), refreshUrl);
   });
 
   $(".startdate").datepicker({
@@ -138,11 +140,11 @@ $(document).ready(() => {
     );
   };
 
-  $("#categories td[key='category']").click((e) => {
+  $("#categories td.category").click((e) => {
     const category = $(e.target)
       .parent()
       .parent()
-      .find("td[key='category_name']")
+      .find("td.c-name")
       .first()
       .html()
       .trim();
@@ -162,8 +164,12 @@ $(document).ready(() => {
 
   $(".ignore-input").click((e) => {
     const el = e.target;
+    const isTransaction = $(el).parent().hasClass("t-is-ignored");
     const tr = $(el).parent().parent().parent();
-    const code = $(tr).find(".t-code").first().html();
+
+    const codeField = isTransaction ? ".t-code" : ".c-code";
+
+    const code = $(tr).find(codeField).first().html();
     const params = getParams();
     let ignore = [];
 
@@ -181,6 +187,10 @@ $(document).ready(() => {
       ignore = ignore.filter((val) => val != code);
     }
 
-    updateUrl({ ignore: ignore.join(",") });
+    if (isTransaction) {
+      updateUrl({ ignore: ignore.join(",") });
+    } else {
+      updateUrl({ category_ignore: ignore.join(",") });
+    }
   });
 });

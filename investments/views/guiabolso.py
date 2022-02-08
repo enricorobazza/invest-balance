@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
 from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
 from investments.api.guiabolso.service import GuiaBolsoService
-from django.db.models import Sum, Q, Case, Value, When, BooleanField
+from django.db.models import Sum, Q, Case, Value, When, BooleanField, F
 from itertools import groupby
 from operator import attrgetter
 from django.db.models.functions import TruncDate
@@ -31,7 +31,12 @@ class GuiaBolsoViews():
 
 	def refresh_transactions(request):
 		guiabolso_service = GuiaBolsoService(request.user)
-		amount_inserted = guiabolso_service.update_transactions()
+
+		variable, startdate, enddate, ignore, category_ignore, n = GuiaBolsoViews.get_parameters(request)
+		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
+		startdate, enddate = GuiaBolsoViews.decide_date_limits(transactions, n, startdate, enddate)
+
+		amount_inserted = guiabolso_service.update_transactions(startdate, enddate)
 		if amount_inserted < 0:
 			return redirect('add_token')
 
@@ -46,6 +51,7 @@ class GuiaBolsoViews():
 		startdate = None
 		enddate = None
 		ignore = []
+		category_ignore = []
 		n = 0
 
 		if 'variable' in request.GET:
@@ -63,10 +69,14 @@ class GuiaBolsoViews():
 			ignore = request.GET['ignore']
 			ignore = [int(i) for i in ignore.split(',')]
 
+		if 'category_ignore' in request.GET:
+			category_ignore = request.GET['category_ignore']
+			category_ignore = [int(i) for i in category_ignore.split(',')]
+
 		if 'n' in request.GET:
 			n = int(request.GET['n'])
 
-		return variable, startdate, enddate, ignore, n
+		return variable, startdate, enddate, ignore, category_ignore, n
 
 	def find_last_payment(transactions, n):
 		transactions = transactions.filter(Q(label="PAGTO SALARIO")|Q(label="PAGTO ADIANT SALARIAL")).values('date').distinct()
@@ -90,21 +100,25 @@ class GuiaBolsoViews():
 		).annotate(value=Sum('value'))
 		return result.order_by('value')
 
+	def decide_date_limits(transactions, n, startdate, enddate):
+		if startdate is None or n is not None:
+			_startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
+		if enddate is None and _enddate is not None:
+			enddate = _enddate - datetime.timedelta(days=1)
+		if startdate is None:
+			startdate = _startdate
+
+		return startdate, enddate
+
 	def list_transactions(request):
 		if request.user.is_anonymous:
 			return redirect("login")
 
-		variable, startdate, enddate, ignore, n = GuiaBolsoViews.get_parameters(request)
-
 		print("Getting transactions")
-		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
 
-		if startdate is None or n is not None:
-			_startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
-			if enddate is None:
-				enddate = _enddate - datetime.timedelta(days=1)
-			if startdate is None:
-				startdate = _startdate
+		variable, startdate, enddate, ignore, category_ignore, n = GuiaBolsoViews.get_parameters(request)
+		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
+		startdate, enddate = GuiaBolsoViews.decide_date_limits(transactions, n, startdate, enddate)
 
 		if variable:
 			transactions = transactions.filter(Q(category__predictable = False) & Q(exclude_from_variable = False))
@@ -116,6 +130,8 @@ class GuiaBolsoViews():
 		if enddate is not None:
 			transactions = transactions.filter(date__lte=enddate)
 
+		# Annotate transactions with only ignore by transaction
+		# since we dont want to filter out ignored categories
 		transactions = transactions.annotate(is_ignored = Case(
 			When(code__in=ignore, then=True),
 			default=False,
@@ -123,11 +139,24 @@ class GuiaBolsoViews():
 		))
 		not_ignored_transactions = transactions.filter(is_ignored=False)
 
+		# Generate list of categories based on not ignored transactions
 		categories = GuiaBolsoViews.group_by_category(not_ignored_transactions)
-		total = not_ignored_transactions.aggregate(value=Sum('value'))['value']
+		categories = categories.annotate(is_ignored = Case(
+			When(category__code__in=category_ignore, then=True),
+			default=False,
+			output_field=BooleanField()
+		))
 
-		if len(transactions) > 100:
-			transactions = transactions[:100]
+		# Annotate the transactions with ignoring the category, not that the categories are created
+		transactions = transactions.annotate(is_ignored = Case(
+			When(Q(code__in=ignore) | Q(category__code__in=category_ignore), then=True),
+			default=False,
+			output_field=BooleanField()
+		))
+		# Update not_ignored list for getting total sum
+		not_ignored_transactions = transactions.filter(is_ignored=False)
+
+		total = not_ignored_transactions.aggregate(value=Sum('value'))['value']
 
 		try:
 			token = GuiaBolsoToken.objects.get(user=request.user)
@@ -135,6 +164,9 @@ class GuiaBolsoViews():
 			return redirect('add_token')
 
 		transactions = transactions.annotate(_date=TruncDate('date'))
+
+		if len(transactions) > 100:
+			transactions = transactions[:100]
 
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
