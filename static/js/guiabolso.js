@@ -163,9 +163,10 @@ $(document).ready(() => {
   });
 
   $(".ignore-input").click((e) => {
-    const el = e.target;
-    const isTransaction = $(el).parent().hasClass("t-is-ignored");
-    const tr = $(el).parent().parent().parent();
+    let el = $(e.target);
+    if (!el.hasClass("ignore-input")) el = el.parent();
+    const isTransaction = el.parent().hasClass("t-is-ignored");
+    const tr = el.parent().parent().parent();
 
     const codeField = isTransaction ? ".t-code" : ".c-code";
 

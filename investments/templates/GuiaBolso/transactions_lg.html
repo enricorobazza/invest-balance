@@ -20,8 +20,9 @@
 			class="transaction"
 		>
 		  <td class="t-code d-none">{{transaction.code}}</td>
-		  <td class="t-is-ignored align-middle ignore-input cursor-pointer">
-			  <div>
+		  <td class="align-middle">
+			<div class="t-is-ignored">
+			  <div class="ignore-input cursor-pointer">
 				{% if transaction.is_ignored %}
 					<i class="fa fa-lg fa-eye-slash mr-2"></i>
 				{% else %}
@@ -29,6 +30,7 @@
 				{% endif %}
 				Ignorar
 			  </div>
+			</div>
 		  </td>
 		  <td class="t-category-name d-none">
 			  {{transaction.category.name}}
