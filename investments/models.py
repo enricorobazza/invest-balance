@@ -153,7 +153,7 @@ class GuiaBolsoTransaction(models.Model):
 
 
 class GuiaBolsoCategoryBudget(models.Model):
-  category = models.ForeignKey(GuiaBolsoCategory, related_name="category_budget", on_delete=models.CASCADE)
+  category = models.ForeignKey(GuiaBolsoCategory, related_name="budget", on_delete=models.CASCADE)
   goal = models.FloatField(default=0)
   spent = models.FloatField(default=0)
   month = models.IntegerField()

@@ -45,6 +45,30 @@ class GuiaBolsoService:
 			categories_dict[category.code] = category
 		self.categories = categories_dict
 
+	def create_category_budgets(self, month, categories_df, budgets_df):
+		GuiaBolsoCategoryBudget.objects.filter(month=month.month, year=month.year).delete()
+
+		categories_budgets = []
+
+		# Create categories budgets
+		for i in range(categories_df.shape[0]):
+			row = categories_df.iloc[i]
+			category = None
+			try:
+				category = self.categories[row['id']]
+			except GuiaBolsoCategory.DoesNotExist:
+				continue
+			_budget = budgets_df.loc[row['id']]
+			budget = GuiaBolsoCategoryBudget()
+			budget.category = category
+			budget.goal = _budget["goal"]
+			budget.spent = _budget["spent"]
+			budget.year = month.year
+			budget.month = month.month
+			categories_budgets.append(budget)
+
+		self.batch_insert(categories_budgets, GuiaBolsoCategoryBudget)
+
 	def transactions_for_month(self, token, month, is_month_first):
 		month_code = self.get_code_for_month(month)
 		response = subprocess.check_output(curl_text%(
@@ -89,26 +113,7 @@ class GuiaBolsoService:
 			self.batch_insert(categories, GuiaBolsoCategory)
 			self.update_categories_as_dict()
 
-		categories_budgets = []
-
-		# Create categories budgets
-		for i in range(categories_df.shape[0]):
-			row = categories_df.iloc[i]
-			category = None
-			try:
-				category = self.categories[row['id']]
-			except GuiaBolsoCategory.DoesNotExist:
-				continue
-			_budget = budgets_df.loc[row['id']]
-			budget = GuiaBolsoCategoryBudget()
-			budget.category = category
-			budget.goal = _budget["goal"]
-			budget.spent = _budget["spent"]
-			budget.year = month.year
-			budget.month = month.month
-			categories_budgets.append(budget)
-
-		self.batch_insert(categories_budgets, GuiaBolsoCategoryBudget)
+		self.create_category_budgets(month, categories_df, budgets_df)
 
 		merged_df = None
 

@@ -2,7 +2,7 @@ import datetime
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
 from investments.forms import GuiaBolsoLoginForm
-from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory
+from investments.models import GuiaBolsoToken, GuiaBolsoTransaction, GuiaBolsoCategory, GuiaBolsoCategoryBudget
 from investments.api.guiabolso.service import GuiaBolsoService
 from django.db.models import Sum, Q, Case, Value, When, BooleanField, F
 from itertools import groupby
@@ -93,11 +93,17 @@ class GuiaBolsoViews():
 
 		return transactions[n]['date'], transactions[n-1]['date']
 
-	def group_by_category(transactions):
+	def group_by_category(transactions, last_date):
 		result = transactions.values(
 			'category__name', 'category__code',
-			'category__color', 'category__symbol'
+			'category__color', 'category__symbol',
+			'category__budget', 'category__budget__month',
+			'category__budget__year'
 		).annotate(value=Sum('value'))
+
+		result = result.annotate(budget=F('category__budget__goal'), month=F('category__budget__month'), year=F('category__budget__year'))
+		result = result.filter(month=last_date.month, year=last_date.year)
+
 		return result.order_by('value')
 
 	def decide_date_limits(transactions, n, startdate, enddate):
@@ -139,8 +145,12 @@ class GuiaBolsoViews():
 		))
 		not_ignored_transactions = transactions.filter(is_ignored=False)
 
+		last_date = enddate
+		if len(transactions) > 0 :
+			last_date = transactions.order_by('-date')[0].date
+
 		# Generate list of categories based on not ignored transactions
-		categories = GuiaBolsoViews.group_by_category(not_ignored_transactions)
+		categories = GuiaBolsoViews.group_by_category(not_ignored_transactions, last_date)
 		categories = categories.annotate(is_ignored = Case(
 			When(category__code__in=category_ignore, then=True),
 			default=False,
@@ -157,6 +167,7 @@ class GuiaBolsoViews():
 		not_ignored_transactions = transactions.filter(is_ignored=False)
 
 		total = not_ignored_transactions.aggregate(value=Sum('value'))['value']
+		total_planned = categories.filter(is_ignored=False).aggregate(value=Sum('budget'))['value']
 
 		try:
 			token = GuiaBolsoToken.objects.get(user=request.user)
@@ -176,5 +187,6 @@ class GuiaBolsoViews():
 			'variable': variable,
 			'startdate': startdate if startdate is not None else datetime.date.today(),
 			'enddate': enddate if enddate is not None else datetime.date.today(),
-			'total': total
+			'total': total,
+			'total_planned': total_planned,
 		})

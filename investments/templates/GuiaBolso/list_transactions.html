@@ -76,6 +76,7 @@
                   <th scope="col">Ignorar</th>
                   <th scope="col">Categoria</th>
                   <th scope="col">Valor (R$)</th>
+                  <th scope="col">Planejado (R$)</th>
                 </tr>
               </thead>
               <tbody>
@@ -108,7 +109,9 @@
                     " class="m-2 p-2 rounded d-inline">{{category.category__symbol|symbol}} {{category.category__name}}</div>
                   </td>
                   <td class="c-value align-middle {% if category.value > 0 %} text-success {% else %} text-danger {% endif %}">{{category.value|stringformat:".2f"}}</td>
+                  <td class="c-goal align-middle">{{category.budget|stringformat:".2f"}}</td>
                 </tr>
+
 
                 {% endfor %}
                 {% endif %}
@@ -117,6 +120,7 @@
                   <td class="align-middle pl-4">Total</td>
                   <td></td>
                   <td key="value" class="align-middle">{{total|stringformat:".2f"}}</td>
+                  <td key="value" class="align-middle">{{total_planned|stringformat:".2f"}}</td>
                 </td>
 
               </tbody>
