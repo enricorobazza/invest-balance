@@ -10,7 +10,7 @@ class InvestViews():
 
     categories = Category.objects.filter(user=user).aggregate(weight_sum=Sum('weight', output_field=FloatField()))
 
-    saving_categories = Saving.objects.values('category', title=F('category__title') ,weight=F('category__weight')).filter(user=user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
+    saving_categories = Saving.objects.values('category', pk=F('category__pk'), title=F('category__title'), weight=F('category__weight'), can_invest=F('category__can_invest')).filter(user=user).annotate(final_amount=Sum('final_amount', output_field=FloatField()))
 
     score_sum_by_category = {}
 
@@ -41,10 +41,12 @@ class InvestViews():
     initial_patrimony = 0
 
     for saving_category in saving_categories:
-      initial_patrimony += saving_category["final_amount"]
-      saving_category["ideal_percentage"] = saving_category["weight"] / categories["weight_sum"] * 100
+      if saving_category["can_invest"]:
+        initial_patrimony += saving_category["final_amount"]
+        saving_category["ideal_percentage"] = saving_category["weight"] / categories["weight_sum"] * 100
+      else:
+        saving_category["ideal_percentage"] = 0
       saving_category["fractioned"] = True
-
     
     return assets, saving_categories, initial_patrimony
 

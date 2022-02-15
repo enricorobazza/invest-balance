@@ -6,7 +6,7 @@ let global_category_sum = {};
 
 function sortTable() {
   var table, rows, switching, i, x, y, shouldSwitch;
-  table = document.getElementById('assets');
+  table = document.getElementById("assets");
   switching = true;
   /* Make a loop that will continue until
   no switching has been done: */
@@ -47,39 +47,54 @@ const updatePercentages = (patrimony, simulated_patrimony = 0) => {
   $('tbody tr[key="asset"]').each((index, elem) => {
     const _price = parseFloat($($(elem).find('td[key="price"]')[0]).html());
     const _have = parseFloat($($(elem).find('td[key="have"]')[0]).html());
-    const _canInvest = $($(elem).find('td[key="can_invest"]')[0]).html() === "True";
-    const _categoryWeight = parseFloat($($(elem).find('td[key="category_weight"]')[0]).html());
+    const _canInvest =
+      $($(elem).find('td[key="can_invest"]')[0]).html() === "True";
+    const _categoryWeight = parseFloat(
+      $($(elem).find('td[key="category_weight"]')[0]).html()
+    );
     const _category = $($(elem).find('td[key="category_pk"]')[0]).html();
     let have_percentage = patrimony > 0 ? (_have / patrimony) * 100 : 0;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
       have_percentage.toFixed(2)
     );
-    have_percentage = patrimony > 0 ? (_have/(patrimony + simulated_patrimony)) * 100 : 0;
+    have_percentage =
+      patrimony > 0 ? (_have / (patrimony + simulated_patrimony)) * 100 : 0;
     let ideal_percentage = parseFloat(
       $($(elem).find('td[key="ideal_percentage"]')[0]).html()
     );
-    
-    if(!_canInvest){
-      ideal_percentage = 0;
-      $($(elem).find('td[key="real_percentage"]')[0]).html(have_percentage.toFixed(2));
-      $($(elem).find('td[key="ideal_percentage"]')[0]).html(have_percentage.toFixed(2));
-    }
-    else {
-      category_have_percentage = global_category_sum[_category] / (patrimony + simulated_patrimony) * 100;
-      ideal_percentage = (1 - category_have_percentage / (_categoryWeight)) * ideal_percentage + have_percentage;
-      $($(elem).find('td[key="real_percentage"]')[0]).html(ideal_percentage.toFixed(2));
-    }
-    $(elem).removeClass('bg-danger');
-    $(elem).removeClass('bg-success');
 
-    if (have_percentage >= ideal_percentage) $(elem).addClass('bg-danger');
-    else $(elem).addClass('bg-success');
-    
+    if (!_canInvest) {
+      ideal_percentage = 0;
+      $($(elem).find('td[key="real_percentage"]')[0]).html(
+        have_percentage.toFixed(2)
+      );
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html(
+        have_percentage.toFixed(2)
+      );
+    } else {
+      category_have_percentage =
+        (global_category_sum[_category] / (patrimony + simulated_patrimony)) *
+        100;
+      ideal_percentage =
+        (1 - category_have_percentage / _categoryWeight) * ideal_percentage +
+        have_percentage;
+      $($(elem).find('td[key="real_percentage"]')[0]).html(
+        ideal_percentage.toFixed(2)
+      );
+    }
+    $(elem).removeClass("bg-danger");
+    $(elem).removeClass("bg-success");
+
+    if (have_percentage >= ideal_percentage) $(elem).addClass("bg-danger");
+    else $(elem).addClass("bg-success");
+
     let to_invest = 0;
     let to_invest_count = 0;
 
-    if(_canInvest) {
-      to_invest = ((ideal_percentage - have_percentage) / 100) * (patrimony + simulated_patrimony);
+    if (_canInvest) {
+      to_invest =
+        ((ideal_percentage - have_percentage) / 100) *
+        (patrimony + simulated_patrimony);
       to_invest_count = to_invest / _price;
     }
 
@@ -91,28 +106,51 @@ const updatePercentages = (patrimony, simulated_patrimony = 0) => {
 
   // SAVINGS
   $('tbody tr[key="saving"]').each((index, elem) => {
-    const have_saved = parseFloat(
-      $($(elem).find('td[key="have"]')[0]).html()
+    const have_saved = parseFloat($($(elem).find('td[key="have"]')[0]).html());
+    const _canInvest =
+      $($(elem).find('td[key="can_invest"]')[0]).html() === "True";
+    const _categoryWeight = parseFloat(
+      $($(elem).find('td[key="category_weight"]')[0]).html()
     );
-    const ideal_save_percentage = parseFloat(
-      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
-    );
+    const _category = $($(elem).find('td[key="category_pk"]')[0]).html();
     let saved_percentage = (have_saved / patrimony) * 100;
     $($(elem).find('td[key="have_percentage"]')[0]).html(
       saved_percentage.toFixed(2)
     );
-
     saved_percentage = (have_saved / (patrimony + simulated_patrimony)) * 100;
+    let ideal_save_percentage = parseFloat(
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html()
+    );
 
-    const to_save = ((ideal_save_percentage - saved_percentage) / 100) * (patrimony + simulated_patrimony);
+    if (!_canInvest) {
+      ideal_save_percentage = 0;
+      $($(elem).find('td[key="real_percentage"]')[0]).html(
+        saved_percentage.toFixed(2)
+      );
+      $($(elem).find('td[key="ideal_percentage"]')[0]).html(
+        saved_percentage.toFixed(2)
+      );
+    } else {
+      $($(elem).find('td[key="real_percentage"]')[0]).html(
+        ideal_save_percentage.toFixed(2)
+      );
+    }
+
+    let to_save = 0;
+
+    if (_canInvest) {
+      to_save =
+        ((ideal_save_percentage - saved_percentage) / 100) *
+        (patrimony + simulated_patrimony);
+    }
+
     $($(elem).find('td[key="to_invest"]')[0]).html(to_save.toFixed(2));
-    
-    $(elem).removeClass('bg-danger');
-    $(elem).removeClass('bg-success');
-  
-    if (saved_percentage > ideal_save_percentage)
-      $(elem).addClass('bg-danger');
-    else $(elem).addClass('bg-success');
+
+    $(elem).removeClass("bg-danger");
+    $(elem).removeClass("bg-success");
+
+    if (saved_percentage > ideal_save_percentage) $(elem).addClass("bg-danger");
+    else $(elem).addClass("bg-success");
   });
   getDollarInvestments();
   sortTable();
@@ -123,7 +161,7 @@ const getPrices = () => {
   $('tbody tr[key="asset"]').each((index, elem) => {
     let code = $($(elem).find('td[key="code"]')[0]).html();
     let invest_type = $($(elem).find('td[key="invest_type"]')[0]).html();
-    const url = invest_type === 'S' ? 'stock' : 'fund';
+    const url = invest_type === "S" ? "stock" : "fund";
     $.ajax({
       url: `/${url}/${code}`,
       success: (result) => {
@@ -134,9 +172,12 @@ const getPrices = () => {
         const have = price * count;
         $($(elem).find('td[key="have"]')[0]).html(have.toFixed(2));
 
-        const category = parseInt($($(elem).find('td[key="category_pk"]')[0]).html());
+        const category = parseInt(
+          $($(elem).find('td[key="category_pk"]')[0]).html()
+        );
 
-        if(global_category_sum[category]) global_category_sum[category] += have
+        if (global_category_sum[category])
+          global_category_sum[category] += have;
         else global_category_sum[category] = have;
 
         global_patrimony += have;
@@ -151,100 +192,112 @@ const getDollarInvestments = () => {
   $.ajax({
     url: `/dollarquote`,
     success: (result) => {
-      $('tbody tr').each((index, elem) => {
-        const to_invest = parseFloat($($(elem).find("td[key='to_invest']")[0]).html());
+      $("tbody tr").each((index, elem) => {
+        const to_invest = parseFloat(
+          $($(elem).find("td[key='to_invest']")[0]).html()
+        );
         const to_invest_dollar = to_invest / result.quote;
-        $($(elem).find("td[key='to_invest_dollar']")[0]).html(to_invest_dollar.toFixed(2))
+        $($(elem).find("td[key='to_invest_dollar']")[0]).html(
+          to_invest_dollar.toFixed(2)
+        );
       });
     },
   });
-}
+};
 
 getPrices();
 
-$("#simulate_investment").on('submit', (e) => {
+$("#simulate_investment").on("submit", (e) => {
   e.preventDefault();
-  simulated_investment = parseFloat($("#simulated_investment").val())
-  if(isNaN(simulated_investment)) simulated_investment = 0;
+  simulated_investment = parseFloat($("#simulated_investment").val());
+  if (isNaN(simulated_investment)) simulated_investment = 0;
   new_patrimony = global_patrimony + simulated_investment;
   updatePercentages(global_patrimony, simulated_investment);
   $(".btnOpen").css("display", "inline-block");
   closeStepByStep();
-})
+});
 
 $("#btnToInvestReal").click((e) => {
   e.preventDefault();
-  $(".real").css('display', 'none');
-  $(".dollar").css('display', 'table-cell');
-})
+  $(".real").css("display", "none");
+  $(".dollar").css("display", "table-cell");
+});
 
 $("#btnToInvestDollar").click((e) => {
   e.preventDefault();
-  $(".real").css('display', 'table-cell');
-  $(".dollar").css('display', 'none');
-})
+  $(".real").css("display", "table-cell");
+  $(".dollar").css("display", "none");
+});
 
 const closeStepByStep = () => {
-  $("#stepByStep").css('display', "none")
+  $("#stepByStep").css("display", "none");
   stepOpen = false;
   $(".btnOpen").html("Abrir Passo a Passo");
-}
+};
 
 $(".btnOpen").click((e) => {
   e.preventDefault();
-  if(stepOpen) {
+  if (stepOpen) {
     closeStepByStep();
     return;
   }
   $(".btnOpen").html("Fechar Passo a Passo");
   stepOpen = true;
-  $("#stepByStep").css('display', "block")
+  $("#stepByStep").css("display", "block");
   $(".stepper").html("");
   let money = parseFloat($("#simulated_investment").val());
   let assetIndex = 0;
   let categorySum = {};
   let total = 0;
-  while(money > 0){
-    const row = $("#assets").find("tr")[assetIndex+1];
-    let to_invest = parseFloat($($(row).find("td[key='to_invest']")[0]).html())
-    if(to_invest <= 0) break;
-    let short_code = $($(row).find("td[key='short_code']")[0]).html()
-    const category = $($(row).find("td[key='category']")[0]).html()
-    const fractioned = $($(row).find("td[key='fractioned']")[0]).html() === "True" ? true : false;
-    const price = parseFloat($($(row).find("td[key='price']")[0]).html())
-    if(fractioned) {
-      if(to_invest > money){
+  while (money > 0) {
+    const row = $("#assets").find("tr")[assetIndex + 1];
+    let to_invest = parseFloat($($(row).find("td[key='to_invest']")[0]).html());
+    if (to_invest <= 0) break;
+    let short_code = $($(row).find("td[key='short_code']")[0]).html();
+    const category = $($(row).find("td[key='category']")[0]).html();
+    const fractioned =
+      $($(row).find("td[key='fractioned']")[0]).html() === "True"
+        ? true
+        : false;
+    const price = parseFloat($($(row).find("td[key='price']")[0]).html());
+    if (fractioned) {
+      if (to_invest > money) {
         to_invest = money;
       }
-    }
-    else{
-      let to_invest_count = parseFloat($($(row).find("td[key='to_invest_count']")[0]).html())
+    } else {
+      let to_invest_count = parseFloat(
+        $($(row).find("td[key='to_invest_count']")[0]).html()
+      );
       to_invest_count = Math.round(to_invest_count);
       to_invest = price * to_invest_count;
-      while(to_invest > money){
+      while (to_invest > money) {
         to_invest -= price;
       }
     }
 
-    if(!short_code) short_code = category;
+    if (!short_code) short_code = category;
 
     let amount = price > 0 ? to_invest / price : 0;
     amount = amount.toFixed(4).replace(/0{0,2}$/, "");
 
-    if(to_invest > 0) {
-      $(".stepper").append(`<li>${assetIndex+1}º Passo: ${short_code}: R$ ${to_invest.toFixed(2)} (${amount})</li>`)
-      if(categorySum[category]) categorySum[category] += to_invest
+    if (to_invest > 0) {
+      $(".stepper").append(
+        `<li>${assetIndex + 1}º Passo: ${short_code}: R$ ${to_invest.toFixed(
+          2
+        )} (${amount})</li>`
+      );
+      if (categorySum[category]) categorySum[category] += to_invest;
       else categorySum[category] = to_invest;
       total += to_invest;
       money -= to_invest;
     }
-    assetIndex+= 1;
+    assetIndex += 1;
   }
 
-  $(".stepper").append(`<hr />`)
+  $(".stepper").append(`<hr />`);
   Object.entries(categorySum).forEach(([key, value]) => {
-    $(".stepper").append(`<li>${key}: ${value.toFixed(2)}</li>`)
-  })
-  $(".stepper").append(`<hr />`)
-  $(".stepper").append(`<li>Total: ${total.toFixed(2)}</li>`)
-})
+    $(".stepper").append(`<li>${key}: ${value.toFixed(2)}</li>`);
+  });
+  $(".stepper").append(`<hr />`);
+  $(".stepper").append(`<li>Total: ${total.toFixed(2)}</li>`);
+});

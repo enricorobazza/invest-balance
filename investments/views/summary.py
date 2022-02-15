@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from ..models import AssetPurchase, Saving
-from django.db.models import F, Sum, FloatField
+from django.db.models import F, Sum, FloatField, Case, When, Q
 from django.contrib.auth.models import User
 from investments.forms import CategoryForm
 
@@ -28,7 +28,14 @@ class SummaryViews():
       ret_category["assets"] = list(assets.values("code", "amount", "invest_type"))
       ret_categories[category["pk"]] = ret_category
 
-    saving_categories = Saving.objects.values(title=F('category__title')).filter(user=user).annotate(current_value=Sum('final_amount', output_field=FloatField()), sum=Sum('amount', output_field=FloatField()), yield_rate = (F('current_value') - F('sum'))/F('sum'))
+    saving_categories = Saving.objects.values(title=F('category__title')).filter(user=user).annotate(
+      current_value=Sum('final_amount', output_field=FloatField()), 
+      sum=Sum('amount', output_field=FloatField()), 
+      yield_rate = Case(
+        When(sum=0, then=0),
+        default=(F('current_value') - F('sum'))/F('sum')
+      )
+    )
 
     initial_patrimony = 0
 

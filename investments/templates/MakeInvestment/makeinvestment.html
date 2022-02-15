@@ -100,13 +100,20 @@
           <td style="display:none" key="category_pk" class="align-middle">{{saving_category.pk}}</td>
           <td style="display:none" key="fractioned" class="align-middle">{{saving_category.fractioned}}</td>
           <td style="display:none" key="ideal_percentage" class="align-middle">{{saving_category.ideal_percentage}}</td>
+          <td style="display:none" key="can_invest" class="align-middle">{{saving_category.can_invest}}</td>
           <td key="category" class="align-middle">{{saving_category.title}}</td>
           <td key="score" class="align-middle"> - </td>
           <td key="price" class="align-middle"> - </td>
           <td key="count" class="align-middle"> - </td>
           <td key="have" class="align-middle">{{saving_category.final_amount|floatformat:2}}</td>
           <td key="have_percentage" class="align-middle">...</td>
-          <td key="can_invest_text" class="align-middle">Sim</td>
+          <td key="can_invest_text" class="align-middle">
+            {% if saving_category.can_invest %}
+              Sim
+            {% else %}
+              Não
+            {% endif %}
+          </td>
           <td key="real_percentage" class="align-middle">...</td>
           <td key="to_invest" class="align-middle real">...</td>
           <td key="to_invest_dollar" class="align-middle dollar">...</td>
