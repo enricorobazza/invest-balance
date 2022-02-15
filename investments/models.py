@@ -21,10 +21,13 @@ class CategoryType(models.Model):
     return self.type
 
 class Category(models.Model):
+  BOOL_CHOICES = ((True, 'Sim'), (False, 'Não'))
+
   title = models.CharField(max_length=255)
   weight = models.IntegerField()
   user = models.ForeignKey(User, related_name="category_owner", on_delete=models.CASCADE)
   type = models.ForeignKey(CategoryType, related_name="category_type", on_delete=models.PROTECT, null=True)
+  can_invest = models.BooleanField(verbose_name="Can be Invested?", default=True, choices=BOOL_CHOICES)
 
   class Meta:
     verbose_name_plural = "categories"
