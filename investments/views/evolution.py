@@ -100,7 +100,7 @@ class EvolutionViews():
         beginning_date = datetime.fromtimestamp(timestamp_beginning)
         start = beginning_date.month
         end = datetime.now().month
-        month_prices = [{"date": datetime.date(datetime.strptime(beginning_date+relativedelta(months=x), "%Y-%m-%d")), "value": price} for x in range(end-start+1)]
+        month_prices = [{"date": (beginning_date+relativedelta(months=x)).date(), "value": price} for x in range(end-start+1)]
 
       last_price = "null"
       index = -1
