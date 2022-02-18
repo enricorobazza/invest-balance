@@ -166,3 +166,14 @@ class GuiaBolsoCategoryBudget(models.Model):
     constraints = [
       models.UniqueConstraint(fields=['category', 'month', 'year'], name='category budget unique')
     ]
+
+class PriceHistory(models.Model):
+  key = models.CharField(max_length=100)
+  start = models.DateField()
+  end = models.DateField()
+  data = models.TextField()
+
+  class Meta:
+    constraints = [
+      models.UniqueConstraint(fields=['key', 'start', 'end'], name='price history unique')
+    ]

@@ -1,19 +1,39 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from ..models import AssetPurchase, Asset, Saving
+from ..models import AssetPurchase, Asset, Saving, PriceHistory
 from django.db.models import F, FloatField, Sum
 from django.db.models.functions import ExtractMonth, ExtractYear, Concat, LPad, Cast
 from django.db.models.expressions import Window
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
+from investments.views.services import ServiceViews
 import csv
 import time
 import calendar
 import urllib.request
-
+import json
+from dateutil.relativedelta import relativedelta
 class EvolutionViews():
   def charts(request, code):
     return render(request, 'Charts/stock.html', {"code": code})
+
+  def price_cache(key, start, end):
+    url = "https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1mo&events=history&includeAdjustedClose=true"%(key, start, end)
+
+    start = datetime.fromtimestamp(start).replace(day=1).date()
+    end = datetime.fromtimestamp(end).replace(day=1).date()
+
+    cache = None
+    try:
+      cache = PriceHistory.objects.get(start=start, end=end, key=key)
+    except PriceHistory.DoesNotExist:
+      response = urllib.request.urlopen(url)
+      data = list(csv.reader(response.read().decode().splitlines(), delimiter=','))
+      json_data = json.dumps(data)
+      cache = PriceHistory(data=json_data, key=key, start=start, end=end)
+      cache.save()
+
+    return json.loads(cache.data)
 
   def evolution_chart(request):
     if(request.user.is_anonymous):
@@ -21,14 +41,13 @@ class EvolutionViews():
     else:
       user = request.user
       # return redirect('/login')
-    assets = list(Asset.objects.filter(user=user).values('code'))
+    assets = list(Asset.objects.filter(user=user).values('code', 'invest_type'))
     first_date = list(AssetPurchase.objects.filter(asset__user=user).order_by('date').values('date'))[0]["date"]
 
     timestamp_beginning = time.mktime((first_date-timedelta(days=31)).timetuple())
 
-    response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1mo&events=history&includeAdjustedClose=true"%("USDBRL=X", int(timestamp_beginning), int(time.time())))
-
-    usd_prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+    data = EvolutionViews.price_cache(start=int(timestamp_beginning), end=int(time.time()), key="USDBRL=X")
+    usd_prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in data[1:]]
 
     last_usd_price = "null"
     index = -1
@@ -48,6 +67,7 @@ class EvolutionViews():
     ).order_by('year', 'month').distinct('year', 'month').values('date', 'year', 'month', 'accumulated_amount', 'accumulated_spend', 'final_amount', 'amount')
 
     for asset in assets:
+      print("Getting purchases for %s"%(asset["code"]))
       asset_purchases = AssetPurchase.objects.filter(asset__code=asset["code"], asset__user=user).values(year= ExtractYear('date') ,month=ExtractMonth('date')).annotate(
         accumulated_amount=Window(
           expression=Sum('amount'),
@@ -69,9 +89,18 @@ class EvolutionViews():
         asset.prices = []
         continue
 
-      response = urllib.request.urlopen("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1mo&events=history&includeAdjustedClose=true"%(asset["code"], int(timestamp_beginning), int(time.time())))
+      month_prices = []
 
-      month_prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in list(csv.reader(response.read().decode().splitlines(), delimiter=','))[1:]]
+      if asset["invest_type"] == 'S':
+        data = EvolutionViews.price_cache(start=int(timestamp_beginning), end=int(time.time()), key=asset["code"])
+        month_prices = [{"date": datetime.date(datetime.strptime(x[0], "%Y-%m-%d")), "value": x[4]} for x in data[1:]]
+      else:
+        response = ServiceViews.get_fund_price(request, asset["code"])
+        price = json.loads(response.content)['price']
+        beginning_date = datetime.fromtimestamp(timestamp_beginning)
+        start = beginning_date.month
+        end = datetime.now().month
+        month_prices = [{"date": datetime.date(datetime.strptime(beginning_date+relativedelta(months=x), "%Y-%m-%d")), "value": price} for x in range(end-start+1)]
 
       last_price = "null"
       index = -1
@@ -122,7 +151,7 @@ class EvolutionViews():
       month = {"date": date, "total_value": 0, "invested_value": 0, "invested": 0, "value": 0}
       for j in range(len(assets)):
         if(i >= len(assets[j]["prices"])):
-          break
+            break
         month["total_value"] += assets[j]["prices"][i]["total_value"]
         month["invested_value"] += assets[j]["prices"][i]["invested_value"]
         month["invested"] += assets[j]["prices"][i]["invested"]
