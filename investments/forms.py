@@ -122,5 +122,6 @@ class GuiaBolsoLoginForm(forms.Form):
         except GuiaBolsoToken.DoesNotExist:
             guiabolso_token = GuiaBolsoToken(user=user)
 
+        guiabolso_token.valid = True
         guiabolso_token.token = token
         guiabolso_token.save()
