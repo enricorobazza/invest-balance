@@ -16,6 +16,19 @@
 		</div>
 	</div>
 
+	<div class="d-flex col-12 col-lg-auto p-0 mt-2 mt-lg-0">
+		<div class="flex-grow-1">
+			<ul class="nav nav-pills col-12">
+				<li class="flex-1 col-6 col-lg-auto p-0 text-center nav-item border border-{% if not monthly %}white{% else %}primary{% endif %} rounded">
+					<a class="w-100 nav-link {% if not monthly %}active{% endif %} biweekly" href="#">Quinzena</a>
+				</li>
+				<li class="flex-1 col-6 col-lg-auto p-0 text-center nav-item border border-{% if monthly %}white{% else %}primary{% endif %} rounded">
+					<a class="w-100 nav-link {% if monthly %}active{% endif %} monthly" href="#">Mês</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
 	<div class="flex-1 mt-2 mt-lg-0 col-12 col-lg-auto p-0 d-none d-lg-inline-block">
 		<input type="text" class="startdate datepicker" />
 	</div>

@@ -148,7 +148,7 @@ class EvolutionViews():
     months = []
     for i in range(len(assets[0]["prices"])):
       date = assets[0]["prices"][i]["date"]
-      month = {"date": date, "total_value": 0, "invested_value": 0, "invested": 0, "value": 0}
+      month = {"date": date, "total_value": 0, "invested_value": 0, "invested": 0, "value": 0, "components": []}
       for j in range(len(assets)):
         if(i >= len(assets[j]["prices"])):
             break
@@ -156,6 +156,13 @@ class EvolutionViews():
         month["invested_value"] += assets[j]["prices"][i]["invested_value"]
         month["invested"] += assets[j]["prices"][i]["invested"]
         month["value"] += assets[j]["prices"][i]["value"]
+        month["components"] += [{
+          "code": assets[j]["code"],
+          "total_value": assets[j]["prices"][i]["total_value"],
+          "invested_value": assets[j]["prices"][i]["invested_value"],
+          "invested": assets[j]["prices"][i]["invested"],
+          "value": assets[j]["prices"][i]["value"],
+        }]
       months.append(month)
 
     index_saving = 0
@@ -167,11 +174,25 @@ class EvolutionViews():
           month["invested_value"] += savings[index_saving-1]["accumulated_spend"]
           month["invested"] += savings[index_saving-1]["amount"]
           month["value"] += savings[index_saving-1]["final_amount"]
+          month["components"] += [{
+            "code": "Saving",
+            "total_value": savings[index_saving-1]["accumulated_amount"],
+            "invested_value": savings[index_saving-1]["accumulated_spend"],
+            "invested": savings[index_saving-1]["amount"],
+            "value": savings[index_saving-1]["final_amount"],
+          }]
       else:
         month["total_value"] += savings[index_saving]["accumulated_amount"]
         month["invested_value"] += savings[index_saving]["accumulated_spend"]
         month["invested"] += savings[index_saving]["amount"]
         month["value"] += savings[index_saving]["final_amount"]
+        month["components"] += [{
+          "code": "Saving",
+          "total_value": savings[index_saving]["accumulated_amount"],
+          "invested_value": savings[index_saving]["accumulated_spend"],
+          "invested": savings[index_saving]["amount"],
+          "value": savings[index_saving]["final_amount"],
+        }]
         index_saving += 1
       date = month["date"]
       month["date"] = str(date.year) + "-" + str(date.month) + "-" + str(date.day)

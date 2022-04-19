@@ -62,6 +62,20 @@ $(document).ready(() => {
     updateUrl({ variable: "true" });
   });
 
+  $(".biweekly").click((e) => {
+    e.preventDefault();
+    let params = getParams();
+    if ("monthly" in params) {
+      delete params["monthly"];
+    }
+    buildUrl(params);
+  });
+
+  $(".monthly").click((e) => {
+    e.preventDefault();
+    updateUrl({ monthly: "true" });
+  });
+
   $(".refresh").click((e) => {
     e.preventDefault();
     updateUrl(getParams(), refreshUrl);

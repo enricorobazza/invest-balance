@@ -50,12 +50,16 @@ class GuiaBolsoViews():
 		variable = False
 		startdate = None
 		enddate = None
+		monthly = False
 		ignore = []
 		category_ignore = []
 		n = 0
 
 		if 'variable' in request.GET:
 			variable = request.GET['variable'] == 'true'
+		
+		if 'monthly' in request.GET:
+			monthly = request.GET['monthly'] == 'true'
 
 		if 'startdate' in request.GET:
 			startdate = request.GET['startdate']
@@ -76,14 +80,37 @@ class GuiaBolsoViews():
 		if 'n' in request.GET:
 			n = int(request.GET['n'])
 
-		return variable, startdate, enddate, ignore, category_ignore, n
+		return variable, monthly, startdate, enddate, ignore, category_ignore, n
 
-	def find_last_payment(transactions, n):
+	def find_last_payment(transactions, n, monthly):
 		transactions = transactions.filter(Q(label="PAGTO SALARIO")|Q(label="PAGTO ADIANT SALARIAL")).values('date').distinct()
 
 		if len(transactions) == 0:
 			return None, None
 
+		if monthly:
+			if n is None or n == 0 or len(transactions) == 1:
+					if transactions[0]['date'].day < 20: ## end of month
+						if len(transactions) > 1:
+							return transactions[1]['date'], None
+						return transactions[0]['date'], None
+					else:								 ## middle of month
+						return transactions[0]['date'], None
+			
+			if 2 * n + 1 > len(transactions): # in case there are no more periods
+				last = len(transactions)
+
+				if transactions[last-1]['date'].day > 20: ## end of month
+					return transactions[last-1]['date'], transactions[last-3]['date']
+
+				return transactions[last-1]['date'], transactions[last-2]['date']
+
+			add_middle_month = 0
+			if transactions[0]['date'].day < 20:
+				add_middle_month = 1
+			
+			return transactions[n*2+add_middle_month]['date'], transactions[(n-1)*2+add_middle_month]['date']
+ 
 		if n is None or n == 0 or len(transactions) == 1: # current period
 			return transactions[0]['date'], None
 
@@ -106,9 +133,9 @@ class GuiaBolsoViews():
 
 		return result.order_by('value')
 
-	def decide_date_limits(transactions, n, startdate, enddate):
+	def decide_date_limits(transactions, n, startdate, enddate, monthly):
 		if startdate is None or n is not None:
-			_startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n)
+			_startdate, _enddate = GuiaBolsoViews.find_last_payment(transactions, n, monthly)
 		if enddate is None and _enddate is not None:
 			enddate = _enddate - datetime.timedelta(days=1)
 		if startdate is None:
@@ -122,9 +149,9 @@ class GuiaBolsoViews():
 
 		print("Getting transactions")
 
-		variable, startdate, enddate, ignore, category_ignore, n = GuiaBolsoViews.get_parameters(request)
+		variable, monthly, startdate, enddate, ignore, category_ignore, n = GuiaBolsoViews.get_parameters(request)
 		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
-		startdate, enddate = GuiaBolsoViews.decide_date_limits(transactions, n, startdate, enddate)
+		startdate, enddate = GuiaBolsoViews.decide_date_limits(transactions, n, startdate, enddate, monthly)
 
 		if variable:
 			transactions = transactions.filter(Q(category__predictable = False) & Q(exclude_from_variable = False))
@@ -176,8 +203,8 @@ class GuiaBolsoViews():
 
 		transactions = transactions.annotate(_date=TruncDate('date'))
 
-		if len(transactions) > 100:
-			transactions = transactions[:100]
+		# if len(transactions) > 100:
+		# 	transactions = transactions[:100]
 
 		return render(request, 'GuiaBolso/list_transactions.html', {
 			'transactions': transactions,
@@ -185,6 +212,7 @@ class GuiaBolsoViews():
 			'categories': categories,
 			'last_updated': token.last_updated,
 			'variable': variable,
+			'monthly': monthly,
 			'startdate': startdate if startdate is not None else datetime.date.today(),
 			'enddate': enddate if enddate is not None else datetime.date.today(),
 			'total': total,
