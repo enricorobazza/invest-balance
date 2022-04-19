@@ -32,9 +32,9 @@ class GuiaBolsoViews():
 	def refresh_transactions(request):
 		guiabolso_service = GuiaBolsoService(request.user)
 
-		variable, startdate, enddate, ignore, category_ignore, n = GuiaBolsoViews.get_parameters(request)
+		variable, monthly, startdate, enddate, ignore, category_ignore, n = GuiaBolsoViews.get_parameters(request)
 		transactions = GuiaBolsoTransaction.objects.filter(user=request.user).order_by('-date').select_related('category')
-		startdate, enddate = GuiaBolsoViews.decide_date_limits(transactions, n, startdate, enddate)
+		startdate, enddate = GuiaBolsoViews.decide_date_limits(transactions, n, startdate, enddate, monthly)
 
 		amount_inserted = guiabolso_service.update_transactions(startdate, enddate)
 		if amount_inserted < 0:
